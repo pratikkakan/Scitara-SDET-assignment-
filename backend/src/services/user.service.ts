@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { userStore } from "../data/userStore";
 import type { CreateUserInput, UpdateUserInput, User } from "../types/user.types";
 import { AppError } from "../utils/appError";
+import { userWebSocketPublisher } from "../websocket/userEvents";
 
 const normalizeCreateInput = (input: CreateUserInput): CreateUserInput => ({
   firstName: input.firstName.trim(),
@@ -52,7 +53,11 @@ class UserService {
       updatedAt: timestamp,
     };
 
-    return userStore.create(user);
+    const createdUser = await userStore.create(user);
+
+    userWebSocketPublisher.emitUserCreated(createdUser);
+
+    return createdUser;
   }
 
   async updateUser(id: string, input: UpdateUserInput): Promise<User> {

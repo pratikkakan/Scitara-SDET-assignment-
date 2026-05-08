@@ -8,6 +8,7 @@ TypeScript + Express backend for user management with:
 - centralized error handling
 - reusable response helpers
 - async-ready service/store layers
+- Socket.IO event broadcasting
 
 ## Quick Start
 
@@ -25,6 +26,7 @@ npm start
 ```
 
 The API runs on `http://localhost:3000` by default.
+Socket.IO is served from the same server at `http://localhost:3000/socket.io`.
 
 ## Endpoints
 
@@ -39,6 +41,35 @@ DELETE /users/:id
 ```
 
 Compatibility routes are also mounted at `/api/users`.
+
+## WebSocket Events
+
+The backend uses Socket.IO with modular setup under `src/websocket/`.
+
+Currently emitted events:
+
+- `USER_CREATED` after `POST /users` succeeds
+
+Sample emitted payload:
+
+```json
+{
+  "eventId": "c1f8f0e2-a9b8-45f2-b4d6-4a0675fd3b3b",
+  "type": "USER_CREATED",
+  "occurredAt": "2026-05-08T15:30:00.000Z",
+  "data": {
+    "user": {
+      "id": "021be1e1-dd7a-435d-8bad-7cc5a502d847",
+      "firstName": "Jane",
+      "lastName": "Doe",
+      "email": "jane.doe@example.com",
+      "phone": "+15555550123",
+      "createdAt": "2026-05-08T15:30:00.000Z",
+      "updatedAt": "2026-05-08T15:30:00.000Z"
+    }
+  }
+}
+```
 
 ## Project Structure
 

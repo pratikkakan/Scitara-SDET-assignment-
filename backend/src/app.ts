@@ -18,6 +18,7 @@ app.get("/", (_req, res) => {
       users: "/users",
       compatibleUsers: "/api/users",
       health: "/health",
+      socketIo: "/socket.io",
     },
   });
 });
