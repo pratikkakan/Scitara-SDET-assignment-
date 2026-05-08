@@ -1,27 +1,58 @@
-/**
- * Backend Error Handler Middleware Template
- */
+import type { ErrorRequestHandler } from "express";
+import type { ApiErrorDetails } from "../types/api.types";
+import { AppError } from "../utils/appError";
 
-import { Request, Response, NextFunction } from "express";
+const buildErrorPayload = (
+  message: string,
+  code: string,
+  path: string,
+  details?: ApiErrorDetails,
+) => ({
+  success: false,
+  error: {
+    message,
+    code,
+    ...(details ? { details } : {}),
+  },
+  timestamp: new Date().toISOString(),
+  path,
+});
 
-export interface AppError extends Error {
-  status?: number;
-}
+const isJsonSyntaxError = (
+  error: unknown,
+): error is SyntaxError & { body?: unknown } =>
+  error instanceof SyntaxError && "body" in error;
 
-export function errorHandler(
-  err: AppError,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  const status = err.status || 500;
-  const message = err.message || "Internal Server Error";
+export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
+  if (isJsonSyntaxError(error)) {
+    res.status(400).json(
+      buildErrorPayload(
+        "Malformed JSON body",
+        "INVALID_JSON",
+        req.originalUrl,
+      ),
+    );
+    return;
+  }
 
-  console.error(`[${status}] ${message}`);
+  if (error instanceof AppError) {
+    res.status(error.statusCode).json(
+      buildErrorPayload(
+        error.message,
+        error.code,
+        req.originalUrl,
+        error.details,
+      ),
+    );
+    return;
+  }
 
-  res.status(status).json({
-    success: false,
-    error: message,
-    timestamp: new Date().toISOString(),
-  });
-}
+  console.error(error);
+  res.status(500).json(
+    buildErrorPayload(
+      "An unexpected error occurred",
+      "INTERNAL_SERVER_ERROR",
+      req.originalUrl,
+    ),
+  );
+};

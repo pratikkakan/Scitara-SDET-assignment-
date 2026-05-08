@@ -1,0 +1,28 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "firstName": "Ava",
+    "lastName": "Patel",
+    "email": "ava.patel@example.com",
+    "phone": "+14155550101",
+    "createdAt": "2026-01-05T10:15:00.000Z",
+    "updatedAt": "2026-01-05T10:15:00.000Z"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "firstName": "Ethan",
+    "lastName": "Nguyen",
+    "email": "ethan.nguyen@example.com",
+    "phone": "+14155550102",
+    "createdAt": "2026-02-11T09:30:00.000Z",
+    "updatedAt": "2026-02-11T09:30:00.000Z"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "firstName": "Mia",
+    "lastName": "Johnson",
+    "email": "mia.johnson@example.com",
+    "createdAt": "2026-03-18T14:45:00.000Z",
+    "updatedAt": "2026-03-18T14:45:00.000Z"
+  }
+]

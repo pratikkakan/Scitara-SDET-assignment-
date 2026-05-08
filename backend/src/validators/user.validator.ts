@@ -1,39 +1,45 @@
-/**
- * Input validation schemas using Joi
- */
+import { z } from "zod";
 
-import Joi from "joi";
+const phoneRegex = /^\+?[1-9]\d{1,14}$/;
 
-export const createUserSchema = Joi.object({
-  firstName: Joi.string().min(1).max(100).required().messages({
-    "string.empty": "First name is required",
-    "string.max": "First name must be less than 100 characters",
-  }),
-  lastName: Joi.string().min(1).max(100).required().messages({
-    "string.empty": "Last name is required",
-    "string.max": "Last name must be less than 100 characters",
-  }),
-  email: Joi.string().email().required().messages({
-    "string.email": "Valid email is required",
-    "any.required": "Email is required",
-  }),
-  phone: Joi.string()
-    .pattern(/^\+?[1-9]\d{1,14}$/)
-    .optional()
-    .messages({
-      "string.pattern.base": "Phone must be a valid international number",
-    }),
-});
+const nameSchema = z
+  .string()
+  .trim()
+  .min(1, "This field is required")
+  .max(100, "This field must be 100 characters or fewer");
 
-export const updateUserSchema = Joi.object({
-  firstName: Joi.string().min(1).max(100).optional(),
-  lastName: Joi.string().min(1).max(100).optional(),
-  email: Joi.string().email().optional(),
-  phone: Joi.string()
-    .pattern(/^\+?[1-9]\d{1,14}$/)
-    .optional(),
-})
-  .min(1)
-  .messages({
-    "object.min": "At least one field must be provided for update",
+const emailSchema = z
+  .string()
+  .trim()
+  .email("Email must be valid")
+  .max(255, "Email must be 255 characters or fewer");
+
+const phoneSchema = z
+  .string()
+  .trim()
+  .regex(phoneRegex, "Phone must be a valid international number");
+
+export const createUserSchema = z
+  .object({
+    firstName: nameSchema,
+    lastName: nameSchema,
+    email: emailSchema,
+    phone: phoneSchema.optional(),
+  })
+  .strict();
+
+export const updateUserSchema = z
+  .object({
+    firstName: nameSchema.optional(),
+    lastName: nameSchema.optional(),
+    email: emailSchema.optional(),
+    phone: phoneSchema.optional(),
+  })
+  .strict()
+  .refine((payload) => Object.keys(payload).length > 0, {
+    message: "At least one field must be provided for update",
   });
+
+export const userIdParamSchema = z.object({
+  id: z.string().uuid("User id must be a valid UUID"),
+});

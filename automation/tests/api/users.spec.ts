@@ -70,7 +70,7 @@ test.describe("User API Tests - CRUD Operations", () => {
 
     // Delete user
     const deleteResponse = await request.delete(`${apiUrl}/${user.id}`);
-    expect(deleteResponse.status()).toBe(200);
+    expect(deleteResponse.status()).toBe(204);
 
     // Verify deleted
     const getResponse = await request.get(`${apiUrl}/${user.id}`);
