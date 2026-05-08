@@ -2,7 +2,7 @@
  * Main App component with routing
  */
 
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
         <Route path="/" element={<div>Welcome to E-Commerce</div>} />
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

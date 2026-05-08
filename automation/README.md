@@ -62,6 +62,7 @@ automation/
 **Location**: `tests/api/`
 
 Tests for REST endpoints with:
+
 - ✅ Happy path tests
 - ✅ Negative tests (invalid input)
 - ✅ Schema validation
@@ -69,15 +70,15 @@ Tests for REST endpoints with:
 - ✅ Data-driven tests
 
 ```typescript
-test('POST /users - Create user successfully', async ({ request }) => {
+test("POST /users - Create user successfully", async ({ request }) => {
   const response = await request.post(`${apiUrl}/users`, {
     data: validUser,
-  })
+  });
 
-  expect(response.status()).toBe(201)
-  const json = await response.json()
-  expect(validateSchema(json, userSchema)).toBe(true)
-})
+  expect(response.status()).toBe(201);
+  const json = await response.json();
+  expect(validateSchema(json, userSchema)).toBe(true);
+});
 ```
 
 ### 2. UI Testing
@@ -90,18 +91,18 @@ Page Object Model for UI tests:
 // Page class
 export class ProductListingPage extends BasePage {
   async addToCart(productIndex: number) {
-    const buttons = await this.page.$$('[data-testid="add-to-cart"]')
-    await buttons[productIndex].click()
+    const buttons = await this.page.$$('[data-testid="add-to-cart"]');
+    await buttons[productIndex].click();
   }
 }
 
 // Test
-test('Add product to cart', async ({ page }) => {
-  const listingPage = new ProductListingPage(page)
-  await listingPage.goto('/products')
-  await listingPage.addToCart(0)
+test("Add product to cart", async ({ page }) => {
+  const listingPage = new ProductListingPage(page);
+  await listingPage.goto("/products");
+  await listingPage.addToCart(0);
   // Verify cart updated
-})
+});
 ```
 
 ### 3. WebSocket Testing
@@ -111,25 +112,25 @@ test('Add product to cart', async ({ page }) => {
 Tests for real-time communication:
 
 ```typescript
-test('Should receive user created event', async ({ browser, request }) => {
-  const context = await browser.newContext()
-  const page = await context.newPage()
+test("Should receive user created event", async ({ browser, request }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
 
-  const events: string[] = []
-  
-  page.on('websocket', (ws) => {
-    ws.on('framesent', (frame) => {
-      events.push(frame.payload as string)
-    })
-  })
+  const events: string[] = [];
+
+  page.on("websocket", (ws) => {
+    ws.on("framesent", (frame) => {
+      events.push(frame.payload as string);
+    });
+  });
 
   // Create user via API
-  await request.post('/api/users', { data: newUser })
+  await request.post("/api/users", { data: newUser });
 
   // Wait for WebSocket event
-  await page.waitForTimeout(2000)
-  expect(events.length).toBeGreaterThan(0)
-})
+  await page.waitForTimeout(2000);
+  expect(events.length).toBeGreaterThan(0);
+});
 ```
 
 ## Page Object Model
@@ -141,15 +142,15 @@ export class BasePage {
   constructor(readonly page: Page) {}
 
   async goto(path: string) {
-    await this.page.goto(path)
+    await this.page.goto(path);
   }
 
   async click(selector: string) {
-    await this.page.click(selector)
+    await this.page.click(selector);
   }
 
   async getText(selector: string) {
-    return await this.page.textContent(selector)
+    return await this.page.textContent(selector);
   }
 }
 ```
@@ -159,26 +160,26 @@ export class BasePage {
 ```typescript
 export class CartPage extends BasePage {
   // Selectors
-  private readonly cartItems = '[data-testid="cart-item"]'
-  private readonly totalPrice = '[data-testid="total-price"]'
+  private readonly cartItems = '[data-testid="cart-item"]';
+  private readonly totalPrice = '[data-testid="total-price"]';
 
   // Actions
   async getCartItemCount() {
     const items = await this.page.$$eval(
       this.cartItems,
-      (elements) => elements.length
-    )
-    return items
+      (elements) => elements.length,
+    );
+    return items;
   }
 
   async getTotalPrice() {
-    const text = await this.getText(this.totalPrice)
-    return parseFloat(text || '0')
+    const text = await this.getText(this.totalPrice);
+    return parseFloat(text || "0");
   }
 
   async removeItem(index: number) {
-    const buttons = await this.page.$$('[data-testid="remove-btn"]')
-    await buttons[index].click()
+    const buttons = await this.page.$$('[data-testid="remove-btn"]');
+    await buttons[index].click();
   }
 }
 ```
@@ -188,26 +189,28 @@ export class CartPage extends BasePage {
 ### Fixtures vs Schemas
 
 **Fixtures** (`fixtures/`): Test data
+
 ```typescript
 // fixtures/userTestData.ts
 export const validUser = {
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john@example.com',
-}
+  firstName: "John",
+  lastName: "Doe",
+  email: "john@example.com",
+};
 ```
 
 **Schemas** (`schemas/`): Validation rules
+
 ```typescript
 // schemas/user.schema.ts
 export const userSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    id: { type: 'string' },
-    email: { type: 'string', format: 'email' },
+    id: { type: "string" },
+    email: { type: "string", format: "email" },
   },
-  required: ['id', 'email'],
-}
+  required: ["id", "email"],
+};
 ```
 
 ## Schema Validation
@@ -215,13 +218,13 @@ export const userSchema = {
 Using AJV for response validation:
 
 ```typescript
-import { validateSchema } from '@/utils/schemaValidator'
-import { userSchema } from '@/schemas/user.schema'
+import { validateSchema } from "@/utils/schemaValidator";
+import { userSchema } from "@/schemas/user.schema";
 
-const response = await request.get('/api/users/1')
-const json = await response.json()
+const response = await request.get("/api/users/1");
+const json = await response.json();
 
-expect(validateSchema(json, userSchema)).toBe(true)
+expect(validateSchema(json, userSchema)).toBe(true);
 ```
 
 ## Playwright Configuration
@@ -286,25 +289,25 @@ npx playwright test -g "Create user"  # Tests matching pattern
 ### 1. Test Organization
 
 ```typescript
-test.describe('User API', () => {
-  test.describe('CRUD Operations', () => {
-    test('should create user', async () => {})
-    test('should read user', async () => {})
-    test('should update user', async () => {})
-    test('should delete user', async () => {})
-  })
-})
+test.describe("User API", () => {
+  test.describe("CRUD Operations", () => {
+    test("should create user", async () => {});
+    test("should read user", async () => {});
+    test("should update user", async () => {});
+    test("should delete user", async () => {});
+  });
+});
 ```
 
 ### 2. Assertion Patterns
 
 ```typescript
 // Good: Clear, specific assertions
-expect(response.status()).toBe(201)
-expect(json.email).toBe(validUser.email)
+expect(response.status()).toBe(201);
+expect(json.email).toBe(validUser.email);
 
 // Avoid: Vague assertions
-expect(response.ok()).toBe(true)
+expect(response.ok()).toBe(true);
 ```
 
 ### 3. Test Data
@@ -320,14 +323,14 @@ const user = { firstName: 'John', ... }
 ### 4. Retry Logic
 
 ```typescript
-import { retry } from '@/utils/testHelpers'
+import { retry } from "@/utils/testHelpers";
 
 // For flaky operations
 const result = await retry(
-  () => request.get('/api/users'),
-  3,    // retries
-  1000  // delay
-)
+  () => request.get("/api/users"),
+  3, // retries
+  1000, // delay
+);
 ```
 
 ## Debugging
@@ -335,29 +338,29 @@ const result = await retry(
 ### Enable Trace
 
 ```typescript
-test('debug test', async ({ page }, testInfo) => {
-  await page.context().tracing.start({ screenshots: true })
+test("debug test", async ({ page }, testInfo) => {
+  await page.context().tracing.start({ screenshots: true });
 
   // Test code
 
   await page.context().tracing.stop({
     path: `trace-${testInfo.title}.zip`,
-  })
-})
+  });
+});
 ```
 
 ### Browser Console Logs
 
 ```typescript
-page.on('console', (msg) => {
-  console.log(`Browser log: ${msg.text()}`)
-})
+page.on("console", (msg) => {
+  console.log(`Browser log: ${msg.text()}`);
+});
 ```
 
 ### Screenshots
 
 ```typescript
-await page.screenshot({ path: 'screenshot.png' })
+await page.screenshot({ path: "screenshot.png" });
 ```
 
 ## CI/CD Integration

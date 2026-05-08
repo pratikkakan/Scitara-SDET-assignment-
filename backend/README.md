@@ -47,6 +47,7 @@ src/
 ## Key Responsibilities
 
 ### Controllers
+
 - Handle HTTP requests
 - Validate input (using middleware)
 - Call services
@@ -61,6 +62,7 @@ export async function createUser(req: Request, res: Response) {
 ```
 
 ### Services
+
 - Implement business logic
 - Interact with data layer
 - Handle validations
@@ -75,11 +77,13 @@ export class UserService {
 ```
 
 ### Validators
+
 - Define Joi schemas
 - Handle validation errors
 - Provide clear error messages
 
 ### Middleware
+
 - Request logging
 - CORS handling
 - Error handling
@@ -121,6 +125,7 @@ Consistent error response format:
 ```
 
 HTTP Status Codes:
+
 - 200: OK
 - 201: Created
 - 400: Bad Request
@@ -134,10 +139,10 @@ HTTP Status Codes:
 ```typescript
 const wss = new WebSocket.Server({ port: 3001 });
 
-wss.on('connection', (ws) => {
-  console.log('Client connected');
-  
-  ws.on('message', (data) => {
+wss.on("connection", (ws) => {
+  console.log("Client connected");
+
+  ws.on("message", (data) => {
     // Handle incoming message
   });
 });

@@ -87,15 +87,16 @@ src/
 Axios client with interceptors:
 
 ```typescript
-import apiClient from '@/services/apiClient'
+import apiClient from "@/services/apiClient";
 
 // Automatic headers, error handling, auth token injection
-const response = await apiClient.get('/users')
+const response = await apiClient.get("/users");
 ```
 
 ### State Management
 
 Can use:
+
 - React Context API (lightweight)
 - Redux (scalable)
 - Zustand (minimal)
@@ -103,10 +104,10 @@ Can use:
 **Example with Context:**
 
 ```typescript
-const CartContext = createContext(null)
+const CartContext = createContext(null);
 
 export function useCart() {
-  return useContext(CartContext)
+  return useContext(CartContext);
 }
 ```
 
@@ -115,18 +116,19 @@ export function useCart() {
 ```typescript
 // Custom hook for API calls
 export function useFetch<T>(url: string) {
-  const [data, setData] = useState<T | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    apiClient.get<T>(url)
-      .then(res => setData(res.data))
-      .catch(err => setError(err))
-      .finally(() => setLoading(false))
-  }, [url])
+    apiClient
+      .get<T>(url)
+      .then((res) => setData(res.data))
+      .catch((err) => setError(err))
+      .finally(() => setLoading(false));
+  }, [url]);
 
-  return { data, loading, error }
+  return { data, loading, error };
 }
 ```
 
@@ -152,7 +154,7 @@ Key features in `vite.config.ts`:
 
 ```typescript
 // Example import with alias
-import { apiClient } from '@/services/apiClient'
+import { apiClient } from "@/services/apiClient";
 ```
 
 ## Component Structure
@@ -190,11 +192,11 @@ interface ProductCardProps {
   onAddToCart: (quantity: number) => void
 }
 
-export function ProductCard({ 
-  id, 
-  name, 
-  price, 
-  onAddToCart 
+export function ProductCard({
+  id,
+  name,
+  price,
+  onAddToCart
 }: ProductCardProps) {
   return (
     <div className="product-card">
@@ -218,18 +220,18 @@ styles/
 ```typescript
 // src/types/product.ts
 export interface Product {
-  id: string
-  name: string
-  price: number
-  category: string
-  description: string
-  image: string
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  description: string;
+  image: string;
 }
 
 // src/types/cart.ts
 export interface CartItem {
-  product: Product
-  quantity: number
+  product: Product;
+  quantity: number;
 }
 ```
 
@@ -262,7 +264,7 @@ VITE_WS_URL=ws://localhost:3001
 Access in components:
 
 ```typescript
-const apiUrl = import.meta.env.VITE_API_BASE_URL
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
 ```
 
 ## TypeScript Features

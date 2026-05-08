@@ -151,6 +151,7 @@ scitara-sdet-assignment/
 ## Key File Purposes
 
 ### Configuration Files
+
 - `package.json` - Npm workspace root
 - `tsconfig.json` - TypeScript compilation
 - `playwright.config.ts` - Test browser automation
@@ -159,6 +160,7 @@ scitara-sdet-assignment/
 - `docker-compose.yml` - Container orchestration
 
 ### Source Code Files
+
 - `**/src/index.ts` - Application entry points
 - `**/src/types/*.ts` - TypeScript type definitions
 - `**/src/routes/*.ts` - API route handlers
@@ -166,12 +168,14 @@ scitara-sdet-assignment/
 - `**/src/services/*.ts` - Business logic layer
 
 ### Test Files
+
 - `**/*.spec.ts` - Playwright test files
 - `fixtures/*.ts` - Test data sets
 - `schemas/*.ts` - Response validation schemas
 - `pages/*.ts` - Page Object Model classes
 
 ### Documentation
+
 - `README.md` - Project overview
 - `SETUP_GUIDE.md` - Quick start instructions
 - `backend/README.md` - Backend details
@@ -199,6 +203,7 @@ scitara-sdet-assignment/
 ## 🚀 Quick Navigation
 
 ### To find...
+
 - **API Endpoints**: `backend/src/routes/`
 - **UI Components**: `frontend/src/components/`
 - **Test Cases**: `automation/tests/`
