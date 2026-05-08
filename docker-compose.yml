@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - WS_PORT=3001
+    volumes:
+      - ./backend/src:/app/src
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:3000/api
+    volumes:
+      - ./frontend/src:/app/src
+    command: npm run dev
+
+  tests:
+    build:
+      context: ./automation
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+      - frontend
+    environment:
+      - API_BASE_URL=http://backend:3000
+      - HEADLESS=true
+    volumes:
+      - ./automation:/app
+      - ./automation/test-results:/app/test-results
+    command: npm run test
+
+volumes:
+  test-results:

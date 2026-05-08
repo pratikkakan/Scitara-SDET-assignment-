@@ -1,0 +1,40 @@
+{
+  "name": "automation",
+  "version": "1.0.0",
+  "description": "Playwright-based API and UI automation test suite",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test tests/api",
+    "test:ui": "playwright test tests/ui",
+    "test:websocket": "playwright test tests/websocket",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui-mode": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "playwright",
+    "automation",
+    "testing",
+    "api-testing",
+    "ui-testing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.3",
+    "dotenv": "^16.3.1"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.2.0"
+  }
+}

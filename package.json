@@ -1,0 +1,48 @@
+{
+  "name": "scitara-sdet-assignment",
+  "version": "1.0.0",
+  "description": "Production-grade SDET project with Backend API, React Frontend, and Playwright Automation",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "automation"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm install --workspace=backend && npm install --workspace=frontend && npm install --workspace=automation",
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspaces --if-present",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "test": "npm run test --workspaces --if-present",
+    "test:api": "npm run test:api --workspace=automation",
+    "test:ui": "npm run test:ui --workspace=automation",
+    "test:websocket": "npm run test:websocket --workspace=automation",
+    "test:all": "npm run test:api && npm run test:ui && npm run test:websocket",
+    "test:watch": "npm run test:watch --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "start": "npm run start --workspace=backend",
+    "start:with:frontend": "concurrently \"npm run start:backend\" \"npm run dev:frontend\"",
+    "type-check": "npm run type-check --workspaces --if-present"
+  },
+  "keywords": [
+    "sdet",
+    "api-testing",
+    "ui-automation",
+    "playwright",
+    "express",
+    "react"
+  ],
+  "author": "Scitara Candidate",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
