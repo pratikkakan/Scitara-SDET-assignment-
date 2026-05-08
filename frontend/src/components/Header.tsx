@@ -1,6 +1,6 @@
-import { Link, useLocation } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import '../styles/header.css';
+import { Link, useLocation } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import "../styles/header.css";
 
 export const Header = () => {
   const { getTotalItems } = useCart();
@@ -18,14 +18,14 @@ export const Header = () => {
         <nav className="nav" data-testid="navigation">
           <Link
             to="/"
-            className={`nav-link ${isActive('/') ? 'active' : ''}`}
+            className={`nav-link ${isActive("/") ? "active" : ""}`}
             data-testid="nav-products"
           >
             Products
           </Link>
           <Link
             to="/cart"
-            className={`nav-link ${isActive('/cart') ? 'active' : ''}`}
+            className={`nav-link ${isActive("/cart") ? "active" : ""}`}
             data-testid="nav-cart"
           >
             Cart

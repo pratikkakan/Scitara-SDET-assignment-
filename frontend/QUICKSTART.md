@@ -3,12 +3,14 @@
 ## Get Up and Running in 2 Minutes
 
 ### 1. Install Dependencies
+
 ```bash
 cd frontend
 npm install
 ```
 
 ### 2. Start Development Server
+
 ```bash
 npm run dev
 ```
@@ -26,21 +28,25 @@ The app will automatically open at **http://localhost:5173**
 ## Try These Features
 
 ### 1. Browse Products
+
 - Search for products
 - Filter by category
 - Click any product to see details
 
 ### 2. Add to Cart
+
 - Click "Add to Cart" on any product card
 - Or use quantity selector on product details page
 - View cart count in header
 
 ### 3. Manage Cart
+
 - Update quantities
 - Remove items
 - See total with tax and shipping
 
 ### 4. Checkout
+
 - Fill in billing/shipping address
 - Enter payment information
 - Review your order
@@ -69,19 +75,23 @@ frontend/
 All pages and components have `data-testid` attributes:
 
 **Search & Filter:**
+
 - `search-input` - Product search
 - `category-filter` - Category buttons
 
 **Product Cards:**
+
 - `product-card-{id}` - Each product
 - `quick-add-{id}` - Add to cart button
 
 **Cart:**
+
 - `cart-items` - Cart items list
 - `quantity-{id}` - Quantity inputs
 - `checkout-button` - Proceed to checkout
 
 **Checkout:**
+
 - `checkout-form` - Main form
 - Input fields: `firstName-input`, `email-input`, etc.
 - `place-order-button` - Place order button
@@ -122,12 +132,12 @@ cp .env.example .env.local
 
 ## Features Summary
 
-| Page | Features |
-|------|----------|
-| **Products** | Search, filter by category, quick add, pagination |
-| **Product Details** | Full info, rating, stock status, qty selector |
-| **Cart** | Add/remove/update items, totals, tax, shipping |
-| **Checkout** | Form validation, order review, confirmation |
+| Page                | Features                                          |
+| ------------------- | ------------------------------------------------- |
+| **Products**        | Search, filter by category, quick add, pagination |
+| **Product Details** | Full info, rating, stock status, qty selector     |
+| **Cart**            | Add/remove/update items, totals, tax, shipping    |
+| **Checkout**        | Form validation, order review, confirmation       |
 
 ## Data Persistence
 
@@ -138,6 +148,7 @@ cp .env.example .env.local
 ## Mock Data
 
 8 products pre-loaded:
+
 - Premium Wireless Headphones
 - USB-C Fast Charger
 - Mechanical Keyboard
@@ -150,6 +161,7 @@ cp .env.example .env.local
 ## Responsive Design
 
 Fully responsive for:
+
 - Desktop (1200px+)
 - Tablet (768px - 1200px)
 - Mobile (< 768px)
@@ -164,11 +176,13 @@ Fully responsive for:
 ## Troubleshooting
 
 **Port 5173 in use?**
+
 ```bash
 npm run dev -- --port 3000
 ```
 
 **Cache issues?**
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -177,6 +191,7 @@ npm run dev
 ```
 
 **Build fails?**
+
 ```bash
 npm run type-check  # Check for TS errors
 npm run lint        # Check for lint errors
@@ -188,7 +203,7 @@ Example selectors for Playwright/Cypress:
 
 ```javascript
 // Search for products
-await page.fill('[data-testid="search-input"]', 'Headphones');
+await page.fill('[data-testid="search-input"]', "Headphones");
 
 // Click category filter
 await page.click('[data-testid="category-Electronics"]');
@@ -203,8 +218,8 @@ await page.click('[data-testid="nav-cart"]');
 await page.click('[data-testid="checkout-button"]');
 
 // Fill form
-await page.fill('[data-testid="firstName-input"]', 'John');
-await page.fill('[data-testid="email-input"]', 'john@example.com');
+await page.fill('[data-testid="firstName-input"]', "John");
+await page.fill('[data-testid="email-input"]', "john@example.com");
 
 // Place order
 await page.click('[data-testid="place-order-button"]');

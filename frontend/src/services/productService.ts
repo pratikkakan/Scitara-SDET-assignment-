@@ -1,11 +1,12 @@
-import axios from 'axios';
-import { Product, ApiResponse } from '../types';
-import productsData from '../data/products.json';
+import axios from "axios";
+import { Product, ApiResponse } from "../types";
+import productsData from "../data/products.json";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 // Simulate API delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const productService = {
   /**
@@ -17,7 +18,7 @@ export const productService = {
       // Return mock data
       return productsData as Product[];
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
       // Fallback to mock data
       return productsData as Product[];
     }
@@ -30,10 +31,10 @@ export const productService = {
     try {
       await delay(200);
       const products = productsData as Product[];
-      const product = products.find(p => p.id === id);
+      const product = products.find((p) => p.id === id);
       return product || null;
     } catch (error) {
-      console.error('Error fetching product:', error);
+      console.error("Error fetching product:", error);
       return null;
     }
   },
@@ -45,9 +46,9 @@ export const productService = {
     try {
       await delay(250);
       const products = productsData as Product[];
-      return products.filter(p => p.category === category);
+      return products.filter((p) => p.category === category);
     } catch (error) {
-      console.error('Error fetching products by category:', error);
+      console.error("Error fetching products by category:", error);
       return [];
     }
   },
@@ -61,12 +62,12 @@ export const productService = {
       const products = productsData as Product[];
       const lowerQuery = query.toLowerCase();
       return products.filter(
-        p =>
+        (p) =>
           p.name.toLowerCase().includes(lowerQuery) ||
-          p.description.toLowerCase().includes(lowerQuery)
+          p.description.toLowerCase().includes(lowerQuery),
       );
     } catch (error) {
-      console.error('Error searching products:', error);
+      console.error("Error searching products:", error);
       return [];
     }
   },
@@ -77,27 +78,27 @@ export const productService = {
   async processCheckout(
     items: any[],
     totalAmount: number,
-    formData: any
+    formData: any,
   ): Promise<ApiResponse<any>> {
     try {
       await delay(1000); // Simulate payment processing
-      
+
       // Simulate success response
       return {
         success: true,
         data: {
           orderId: `ORD-${Date.now()}`,
-          status: 'completed',
+          status: "completed",
           amount: totalAmount,
           items: items,
         },
-        message: 'Order placed successfully',
+        message: "Order placed successfully",
       };
     } catch (error) {
-      console.error('Error processing checkout:', error);
+      console.error("Error processing checkout:", error);
       return {
         success: false,
-        error: 'Failed to process checkout',
+        error: "Failed to process checkout",
       };
     }
   },
@@ -108,10 +109,10 @@ export const productService = {
   async getCategories(): Promise<string[]> {
     try {
       const products = productsData as Product[];
-      const categories = [...new Set(products.map(p => p.category))];
+      const categories = [...new Set(products.map((p) => p.category))];
       return categories;
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
       return [];
     }
   },

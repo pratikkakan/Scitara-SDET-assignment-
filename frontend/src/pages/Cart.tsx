@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import { EmptyState } from '../components';
-import '../styles/cart.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { EmptyState } from "../components";
+import "../styles/cart.css";
 
 export const Cart = () => {
   const navigate = useNavigate();
-  const { items, removeItem, updateQuantity, getTotalPrice, clearCart } = useCart();
+  const { items, removeItem, updateQuantity, getTotalPrice, clearCart } =
+    useCart();
   const [removingId, setRemovingId] = useState<string | null>(null);
 
   const handleRemoveItem = (productId: string) => {
@@ -25,11 +26,11 @@ export const Cart = () => {
 
   const handleCheckout = () => {
     if (items.length === 0) return;
-    navigate('/checkout');
+    navigate("/checkout");
   };
 
   const handleContinueShopping = () => {
-    navigate('/');
+    navigate("/");
   };
 
   if (items.length === 0) {
@@ -40,7 +41,7 @@ export const Cart = () => {
           message="Start shopping and add some items to your cart"
           icon="🛒"
           action={{
-            label: 'Continue Shopping',
+            label: "Continue Shopping",
             onClick: handleContinueShopping,
           }}
         />
@@ -68,19 +69,29 @@ export const Cart = () => {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className={`cart-item ${removingId === item.id ? 'removing' : ''}`}
+                  className={`cart-item ${removingId === item.id ? "removing" : ""}`}
                   data-testid={`cart-item-${item.id}`}
                 >
                   <div className="item-image">
-                    <img src={item.image} alt={item.name} data-testid={`item-image-${item.id}`} />
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      data-testid={`item-image-${item.id}`}
+                    />
                   </div>
 
                   <div className="item-details">
                     <h3 data-testid={`item-name-${item.id}`}>{item.name}</h3>
-                    <p className="item-category" data-testid={`item-category-${item.id}`}>
+                    <p
+                      className="item-category"
+                      data-testid={`item-category-${item.id}`}
+                    >
                       {item.category}
                     </p>
-                    <p className="item-price" data-testid={`item-unit-price-${item.id}`}>
+                    <p
+                      className="item-price"
+                      data-testid={`item-unit-price-${item.id}`}
+                    >
                       ${item.price.toFixed(2)} each
                     </p>
                   </div>
@@ -88,7 +99,9 @@ export const Cart = () => {
                   <div className="item-quantity">
                     <label htmlFor={`quantity-${item.id}`}>Qty:</label>
                     <button
-                      onClick={() => handleQuantityChange(item.id, item.cartQuantity - 1)}
+                      onClick={() =>
+                        handleQuantityChange(item.id, item.cartQuantity - 1)
+                      }
                       disabled={item.cartQuantity <= 1}
                       data-testid={`decrease-${item.id}`}
                     >
@@ -100,19 +113,27 @@ export const Cart = () => {
                       min="1"
                       value={item.cartQuantity}
                       onChange={(e) =>
-                        handleQuantityChange(item.id, parseInt(e.target.value) || 1)
+                        handleQuantityChange(
+                          item.id,
+                          parseInt(e.target.value) || 1,
+                        )
                       }
                       data-testid={`quantity-${item.id}`}
                     />
                     <button
-                      onClick={() => handleQuantityChange(item.id, item.cartQuantity + 1)}
+                      onClick={() =>
+                        handleQuantityChange(item.id, item.cartQuantity + 1)
+                      }
                       data-testid={`increase-${item.id}`}
                     >
                       +
                     </button>
                   </div>
 
-                  <div className="item-total" data-testid={`item-total-${item.id}`}>
+                  <div
+                    className="item-total"
+                    data-testid={`item-total-${item.id}`}
+                  >
                     ${(item.price * item.cartQuantity).toFixed(2)}
                   </div>
 

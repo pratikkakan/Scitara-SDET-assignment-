@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
-import { ProductCard, LoadingSpinner, EmptyState } from '../components';
-import { useCart } from '../context/CartContext';
-import { Product } from '../types';
-import productService from '../services/productService';
-import '../styles/product-listing.css';
+import { useEffect, useState } from "react";
+import { ProductCard, LoadingSpinner, EmptyState } from "../components";
+import { useCart } from "../context/CartContext";
+import { Product } from "../types";
+import productService from "../services/productService";
+import "../styles/product-listing.css";
 
 export const ProductListing = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [categories, setCategories] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -24,10 +24,10 @@ export const ProductListing = () => {
           productService.getCategories(),
         ]);
         setProducts(productsData);
-        setCategories(['All', ...categoriesData]);
+        setCategories(["All", ...categoriesData]);
       } catch (err) {
-        setError('Failed to load products. Please try again.');
-        console.error('Error loading products:', err);
+        setError("Failed to load products. Please try again.");
+        console.error("Error loading products:", err);
       } finally {
         setLoading(false);
       }
@@ -38,7 +38,7 @@ export const ProductListing = () => {
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    if (query.trim() === '') {
+    if (query.trim() === "") {
       const allProducts = await productService.getAllProducts();
       setProducts(allProducts);
     } else {
@@ -52,14 +52,14 @@ export const ProductListing = () => {
     setLoading(true);
     try {
       let filtered: Product[];
-      if (category === 'All') {
+      if (category === "All") {
         filtered = await productService.getAllProducts();
       } else {
         filtered = await productService.getProductsByCategory(category);
       }
       setProducts(filtered);
     } catch (err) {
-      setError('Failed to filter products.');
+      setError("Failed to filter products.");
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export const ProductListing = () => {
         message={error}
         icon="❌"
         action={{
-          label: 'Retry',
+          label: "Retry",
           onClick: () => window.location.reload(),
         }}
       />
@@ -107,7 +107,7 @@ export const ProductListing = () => {
           {categories.map((category) => (
             <button
               key={category}
-              className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
+              className={`category-btn ${selectedCategory === category ? "active" : ""}`}
               onClick={() => handleCategoryFilter(category)}
               data-testid={`category-${category}`}
             >
@@ -128,7 +128,7 @@ export const ProductListing = () => {
       ) : (
         <>
           <div className="products-count" data-testid="products-count">
-            Showing {products.length} product{products.length !== 1 ? 's' : ''}
+            Showing {products.length} product{products.length !== 1 ? "s" : ""}
           </div>
           <div className="products-grid" data-testid="products-grid">
             {products.map((product) => (

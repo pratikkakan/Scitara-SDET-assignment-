@@ -1,4 +1,4 @@
-import '../styles/empty-state.css';
+import "../styles/empty-state.css";
 
 interface EmptyStateProps {
   title: string;
@@ -10,7 +10,12 @@ interface EmptyStateProps {
   icon?: string;
 }
 
-export const EmptyState = ({ title, message, action, icon = '📦' }: EmptyStateProps) => {
+export const EmptyState = ({
+  title,
+  message,
+  action,
+  icon = "📦",
+}: EmptyStateProps) => {
   return (
     <div className="empty-state" data-testid="empty-state">
       <div className="empty-state-icon">{icon}</div>

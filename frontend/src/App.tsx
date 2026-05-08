@@ -1,8 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { CartProvider } from './context/CartContext';
-import { Header } from './components';
-import { ProductListing, ProductDetails, Cart, Checkout } from './pages';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CartProvider } from "./context/CartContext";
+import { Header } from "./components";
+import { ProductListing, ProductDetails, Cart, Checkout } from "./pages";
+import "./App.css";
 
 function App() {
   return (

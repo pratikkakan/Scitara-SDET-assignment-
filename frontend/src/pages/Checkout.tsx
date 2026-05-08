@@ -1,30 +1,30 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import { LoadingSpinner, EmptyState } from '../components';
-import { CheckoutFormData } from '../types';
-import productService from '../services/productService';
-import '../styles/checkout.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { LoadingSpinner, EmptyState } from "../components";
+import { CheckoutFormData } from "../types";
+import productService from "../services/productService";
+import "../styles/checkout.css";
 
 export const Checkout = () => {
   const navigate = useNavigate();
   const { items, getTotalPrice, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [orderId, setOrderId] = useState<string>('');
+  const [orderId, setOrderId] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState<CheckoutFormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    zipCode: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    zipCode: "",
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
   });
 
   // Redirect if no items in cart
@@ -35,8 +35,8 @@ export const Checkout = () => {
         message="Your cart is empty. Please add items before proceeding."
         icon="📭"
         action={{
-          label: 'Back to Products',
-          onClick: () => navigate('/'),
+          label: "Back to Products",
+          onClick: () => navigate("/"),
         }}
       />
     );
@@ -48,7 +48,10 @@ export const Checkout = () => {
         <div className="confirmation-card">
           <div className="success-icon">✓</div>
           <h1 data-testid="order-success-title">Order Placed Successfully!</h1>
-          <p className="confirmation-message" data-testid="confirmation-message">
+          <p
+            className="confirmation-message"
+            data-testid="confirmation-message"
+          >
             Thank you for your purchase.
           </p>
           <div className="order-id" data-testid="order-id">
@@ -60,7 +63,7 @@ export const Checkout = () => {
           </p>
           <button
             className="continue-btn"
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             data-testid="back-home-button"
           >
             Back to Home
@@ -73,27 +76,28 @@ export const Checkout = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
-    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
     if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      newErrors.email = 'Valid email is required';
+      newErrors.email = "Valid email is required";
     }
     if (!formData.phone.match(/^\d{10,}$/)) {
-      newErrors.phone = 'Valid phone number is required';
+      newErrors.phone = "Valid phone number is required";
     }
-    if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.city.trim()) newErrors.city = 'City is required';
+    if (!formData.address.trim()) newErrors.address = "Address is required";
+    if (!formData.city.trim()) newErrors.city = "City is required";
     if (!formData.zipCode.match(/^\d{5,}$/)) {
-      newErrors.zipCode = 'Valid zip code is required';
+      newErrors.zipCode = "Valid zip code is required";
     }
     if (!formData.cardNumber.match(/^\d{16}$/)) {
-      newErrors.cardNumber = 'Valid card number is required (16 digits)';
+      newErrors.cardNumber = "Valid card number is required (16 digits)";
     }
     if (!formData.expiryDate.match(/^\d{2}\/\d{2}$/)) {
-      newErrors.expiryDate = 'Valid expiry date is required (MM/YY)';
+      newErrors.expiryDate = "Valid expiry date is required (MM/YY)";
     }
     if (!formData.cvv.match(/^\d{3,4}$/)) {
-      newErrors.cvv = 'Valid CVV is required';
+      newErrors.cvv = "Valid CVV is required";
     }
 
     setErrors(newErrors);
@@ -110,7 +114,7 @@ export const Checkout = () => {
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
-        [name]: '',
+        [name]: "",
       }));
     }
   };
@@ -124,18 +128,22 @@ export const Checkout = () => {
 
     try {
       setLoading(true);
-      const response = await productService.processCheckout(items, getTotalPrice(), formData);
+      const response = await productService.processCheckout(
+        items,
+        getTotalPrice(),
+        formData,
+      );
 
       if (response.success && response.data?.orderId) {
         setOrderId(response.data.orderId);
         clearCart();
         setOrderPlaced(true);
       } else {
-        alert('Failed to place order. Please try again.');
+        alert("Failed to place order. Please try again.");
       }
     } catch (error) {
-      console.error('Checkout error:', error);
-      alert('An error occurred during checkout.');
+      console.error("Checkout error:", error);
+      alert("An error occurred during checkout.");
     } finally {
       setLoading(false);
     }
@@ -157,7 +165,11 @@ export const Checkout = () => {
 
         <div className="checkout-layout">
           <div className="checkout-form-section">
-            <form onSubmit={handleSubmit} className="checkout-form" data-testid="checkout-form">
+            <form
+              onSubmit={handleSubmit}
+              className="checkout-form"
+              data-testid="checkout-form"
+            >
               {/* Billing Address Section */}
               <fieldset>
                 <legend>Billing Address</legend>
@@ -171,11 +183,14 @@ export const Checkout = () => {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className={errors.firstName ? 'error' : ''}
+                      className={errors.firstName ? "error" : ""}
                       data-testid="firstName-input"
                     />
                     {errors.firstName && (
-                      <span className="error-message" data-testid="firstName-error">
+                      <span
+                        className="error-message"
+                        data-testid="firstName-error"
+                      >
                         {errors.firstName}
                       </span>
                     )}
@@ -189,11 +204,14 @@ export const Checkout = () => {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className={errors.lastName ? 'error' : ''}
+                      className={errors.lastName ? "error" : ""}
                       data-testid="lastName-input"
                     />
                     {errors.lastName && (
-                      <span className="error-message" data-testid="lastName-error">
+                      <span
+                        className="error-message"
+                        data-testid="lastName-error"
+                      >
                         {errors.lastName}
                       </span>
                     )}
@@ -208,7 +226,7 @@ export const Checkout = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className={errors.email ? 'error' : ''}
+                    className={errors.email ? "error" : ""}
                     data-testid="email-input"
                   />
                   {errors.email && (
@@ -226,7 +244,7 @@ export const Checkout = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className={errors.phone ? 'error' : ''}
+                    className={errors.phone ? "error" : ""}
                     data-testid="phone-input"
                   />
                   {errors.phone && (
@@ -244,7 +262,7 @@ export const Checkout = () => {
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    className={errors.address ? 'error' : ''}
+                    className={errors.address ? "error" : ""}
                     data-testid="address-input"
                   />
                   {errors.address && (
@@ -263,7 +281,7 @@ export const Checkout = () => {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className={errors.city ? 'error' : ''}
+                      className={errors.city ? "error" : ""}
                       data-testid="city-input"
                     />
                     {errors.city && (
@@ -281,11 +299,14 @@ export const Checkout = () => {
                       name="zipCode"
                       value={formData.zipCode}
                       onChange={handleInputChange}
-                      className={errors.zipCode ? 'error' : ''}
+                      className={errors.zipCode ? "error" : ""}
                       data-testid="zipCode-input"
                     />
                     {errors.zipCode && (
-                      <span className="error-message" data-testid="zipCode-error">
+                      <span
+                        className="error-message"
+                        data-testid="zipCode-error"
+                      >
                         {errors.zipCode}
                       </span>
                     )}
@@ -306,11 +327,14 @@ export const Checkout = () => {
                     placeholder="1234567890123456"
                     value={formData.cardNumber}
                     onChange={handleInputChange}
-                    className={errors.cardNumber ? 'error' : ''}
+                    className={errors.cardNumber ? "error" : ""}
                     data-testid="cardNumber-input"
                   />
                   {errors.cardNumber && (
-                    <span className="error-message" data-testid="cardNumber-error">
+                    <span
+                      className="error-message"
+                      data-testid="cardNumber-error"
+                    >
                       {errors.cardNumber}
                     </span>
                   )}
@@ -326,11 +350,14 @@ export const Checkout = () => {
                       placeholder="MM/YY"
                       value={formData.expiryDate}
                       onChange={handleInputChange}
-                      className={errors.expiryDate ? 'error' : ''}
+                      className={errors.expiryDate ? "error" : ""}
                       data-testid="expiryDate-input"
                     />
                     {errors.expiryDate && (
-                      <span className="error-message" data-testid="expiryDate-error">
+                      <span
+                        className="error-message"
+                        data-testid="expiryDate-error"
+                      >
                         {errors.expiryDate}
                       </span>
                     )}
@@ -345,7 +372,7 @@ export const Checkout = () => {
                       placeholder="123"
                       value={formData.cvv}
                       onChange={handleInputChange}
-                      className={errors.cvv ? 'error' : ''}
+                      className={errors.cvv ? "error" : ""}
                       data-testid="cvv-input"
                     />
                     {errors.cvv && (
@@ -361,7 +388,7 @@ export const Checkout = () => {
                 <button
                   type="button"
                   className="cancel-btn"
-                  onClick={() => navigate('/cart')}
+                  onClick={() => navigate("/cart")}
                   data-testid="cancel-button"
                 >
                   Back to Cart
@@ -372,7 +399,7 @@ export const Checkout = () => {
                   disabled={loading}
                   data-testid="place-order-button"
                 >
-                  {loading ? 'Processing...' : 'Place Order'}
+                  {loading ? "Processing..." : "Place Order"}
                 </button>
               </div>
             </form>
@@ -383,16 +410,29 @@ export const Checkout = () => {
 
             <div className="review-items">
               {items.map((item) => (
-                <div key={item.id} className="review-item" data-testid={`review-item-${item.id}`}>
+                <div
+                  key={item.id}
+                  className="review-item"
+                  data-testid={`review-item-${item.id}`}
+                >
                   <div className="review-item-info">
-                    <span className="item-name" data-testid={`review-item-name-${item.id}`}>
+                    <span
+                      className="item-name"
+                      data-testid={`review-item-name-${item.id}`}
+                    >
                       {item.name}
                     </span>
-                    <span className="item-qty" data-testid={`review-item-qty-${item.id}`}>
+                    <span
+                      className="item-qty"
+                      data-testid={`review-item-qty-${item.id}`}
+                    >
                       Qty: {item.cartQuantity}
                     </span>
                   </div>
-                  <span className="item-price" data-testid={`review-item-price-${item.id}`}>
+                  <span
+                    className="item-price"
+                    data-testid={`review-item-price-${item.id}`}
+                  >
                     ${(item.price * item.cartQuantity).toFixed(2)}
                   </span>
                 </div>
@@ -412,7 +452,9 @@ export const Checkout = () => {
               </div>
               <div className="summary-row">
                 <span>Shipping:</span>
-                <span data-testid="review-shipping">${shipping.toFixed(2)}</span>
+                <span data-testid="review-shipping">
+                  ${shipping.toFixed(2)}
+                </span>
               </div>
               <div className="summary-row total">
                 <span>Total:</span>

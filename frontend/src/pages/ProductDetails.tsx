@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Product } from '../types';
-import productService from '../services/productService';
-import { useCart } from '../context/CartContext';
-import { LoadingSpinner, EmptyState } from '../components';
-import '../styles/product-details.css';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Product } from "../types";
+import productService from "../services/productService";
+import { useCart } from "../context/CartContext";
+import { LoadingSpinner, EmptyState } from "../components";
+import "../styles/product-details.css";
 
 export const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +19,7 @@ export const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) {
-        setError('Product ID is missing');
+        setError("Product ID is missing");
         setLoading(false);
         return;
       }
@@ -29,13 +29,13 @@ export const ProductDetails = () => {
         setError(null);
         const data = await productService.getProductById(id);
         if (!data) {
-          setError('Product not found');
+          setError("Product not found");
         } else {
           setProduct(data);
         }
       } catch (err) {
-        setError('Failed to load product details');
-        console.error('Error loading product:', err);
+        setError("Failed to load product details");
+        console.error("Error loading product:", err);
       } finally {
         setLoading(false);
       }
@@ -59,7 +59,7 @@ export const ProductDetails = () => {
   };
 
   const handleGoToCart = () => {
-    navigate('/cart');
+    navigate("/cart");
   };
 
   if (loading) {
@@ -69,12 +69,12 @@ export const ProductDetails = () => {
   if (error || !product) {
     return (
       <EmptyState
-        title={error || 'Product Not Found'}
+        title={error || "Product Not Found"}
         message="The product you're looking for doesn't exist"
         icon="❌"
         action={{
-          label: 'Back to Products',
-          onClick: () => navigate('/'),
+          label: "Back to Products",
+          onClick: () => navigate("/"),
         }}
       />
     );
@@ -82,7 +82,11 @@ export const ProductDetails = () => {
 
   return (
     <div className="product-details" data-testid="product-details">
-      <button className="back-btn" onClick={() => navigate('/')} data-testid="back-button">
+      <button
+        className="back-btn"
+        onClick={() => navigate("/")}
+        data-testid="back-button"
+      >
         ← Back to Products
       </button>
 
@@ -94,7 +98,10 @@ export const ProductDetails = () => {
             data-testid="product-detail-image"
           />
           {!product.inStock && (
-            <div className="out-of-stock-overlay" data-testid="out-of-stock-overlay">
+            <div
+              className="out-of-stock-overlay"
+              data-testid="out-of-stock-overlay"
+            >
               Out of Stock
             </div>
           )}
@@ -103,7 +110,10 @@ export const ProductDetails = () => {
         <div className="details-content">
           <div className="details-header">
             <h1 data-testid="product-detail-name">{product.name}</h1>
-            <span className="category-badge" data-testid="product-detail-category">
+            <span
+              className="category-badge"
+              data-testid="product-detail-category"
+            >
               {product.category}
             </span>
           </div>
@@ -129,7 +139,9 @@ export const ProductDetails = () => {
 
           <div className="details-description">
             <h3>Description</h3>
-            <p data-testid="product-detail-description">{product.description}</p>
+            <p data-testid="product-detail-description">
+              {product.description}
+            </p>
           </div>
 
           {product.inStock && (
@@ -148,7 +160,9 @@ export const ProductDetails = () => {
                   type="number"
                   min="1"
                   value={quantity}
-                  onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                  onChange={(e) =>
+                    handleQuantityChange(parseInt(e.target.value) || 1)
+                  }
                   data-testid="quantity-input"
                 />
                 <button
@@ -160,11 +174,11 @@ export const ProductDetails = () => {
               </div>
 
               <button
-                className={`add-to-cart-btn ${addedToCart ? 'success' : ''}`}
+                className={`add-to-cart-btn ${addedToCart ? "success" : ""}`}
                 onClick={handleAddToCart}
                 data-testid="add-to-cart-button"
               >
-                {addedToCart ? '✓ Added to Cart!' : 'Add to Cart'}
+                {addedToCart ? "✓ Added to Cart!" : "Add to Cart"}
               </button>
             </div>
           )}

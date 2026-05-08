@@ -72,29 +72,35 @@ frontend/
 ## Installation & Setup
 
 ### Prerequisites
+
 - Node.js 16+ and npm/yarn
 - Package dependencies already in package.json
 
 ### Steps
 
 1. **Install dependencies:**
+
    ```bash
    cd frontend
    npm install
    ```
 
 2. **Create environment file:**
+
    ```bash
    cp .env.example .env.local
    ```
 
 3. **Start development server:**
+
    ```bash
    npm run dev
    ```
+
    The app will open at `http://localhost:5173`
 
 4. **Build for production:**
+
    ```bash
    npm run build
    ```
@@ -118,6 +124,7 @@ frontend/
 ### Pages
 
 #### 1. **Product Listing** (`/`)
+
 - Display all products in a responsive grid
 - Search products by name or description
 - Filter by category
@@ -125,6 +132,7 @@ frontend/
 - Loading and empty states
 
 #### 2. **Product Details** (`/product/:id`)
+
 - Full product information
 - Product rating and availability
 - Quantity selector
@@ -132,6 +140,7 @@ frontend/
 - Stock status indicator
 
 #### 3. **Shopping Cart** (`/cart`)
+
 - View all cart items
 - Update quantities
 - Remove items
@@ -140,6 +149,7 @@ frontend/
 - Proceed to checkout button
 
 #### 4. **Checkout** (`/checkout`)
+
 - Billing address form
 - Payment information form
 - Form validation
@@ -149,12 +159,14 @@ frontend/
 ### Components
 
 #### Header
+
 - Navigation links
 - Cart item counter
 - Active page indicator
 - Responsive design
 
 #### ProductCard
+
 - Product image
 - Title and category
 - Price and rating
@@ -162,11 +174,13 @@ frontend/
 - Quick add button with callback
 
 #### LoadingSpinner
+
 - Animated spinner
 - Custom message
 - Centered layout
 
 #### EmptyState
+
 - Icon display
 - Title and message
 - Optional action button
@@ -175,6 +189,7 @@ frontend/
 ### Context & State Management
 
 #### CartContext
+
 - Shopping cart state management
 - Add/remove/update items
 - Cart total calculation
@@ -184,7 +199,9 @@ frontend/
 ### API Service
 
 #### productService
+
 Methods:
+
 - `getAllProducts()` - Get all products
 - `getProductById(id)` - Get single product
 - `getProductsByCategory(category)` - Filter by category
@@ -197,6 +214,7 @@ All methods include simulated network delays for realistic behavior.
 ## Data Models
 
 ### Product
+
 ```typescript
 {
   id: string;
@@ -212,6 +230,7 @@ All methods include simulated network delays for realistic behavior.
 ```
 
 ### CartItem (extends Product)
+
 ```typescript
 {
   ...product,
@@ -220,6 +239,7 @@ All methods include simulated network delays for realistic behavior.
 ```
 
 ### CheckoutFormData
+
 ```typescript
 {
   firstName: string;
@@ -240,6 +260,7 @@ All methods include simulated network delays for realistic behavior.
 All interactive elements have `data-testid` attributes for easy automation testing:
 
 ### Product Listing Page
+
 - `product-listing` - Container
 - `search-box` - Search input area
 - `search-input` - Search input field
@@ -251,6 +272,7 @@ All interactive elements have `data-testid` attributes for easy automation testi
 - `quick-add-{id}` - Quick add button
 
 ### Product Details
+
 - `product-details` - Container
 - `back-button` - Back navigation
 - `product-detail-image` - Product image
@@ -260,6 +282,7 @@ All interactive elements have `data-testid` attributes for easy automation testi
 - `add-to-cart-button` - Add to cart button
 
 ### Cart Page
+
 - `cart-page` - Container
 - `cart-items` - Items list
 - `cart-item-{id}` - Individual items
@@ -268,6 +291,7 @@ All interactive elements have `data-testid` attributes for easy automation testi
 - `checkout-button` - Checkout button
 
 ### Checkout Page
+
 - `checkout-form` - Form element
 - `firstName-input`, `email-input`, etc. - Form fields
 - `place-order-button` - Submit button
@@ -277,6 +301,7 @@ All interactive elements have `data-testid` attributes for easy automation testi
 ## Styling
 
 The application uses a modern CSS design system with:
+
 - CSS custom properties (variables) for theming
 - Mobile-first responsive design
 - Flexbox and CSS Grid layouts
@@ -285,6 +310,7 @@ The application uses a modern CSS design system with:
 - Consistent spacing and typography
 
 ### Color Palette
+
 ```
 Primary: #2563eb (Blue)
 Secondary: #1e40af (Dark Blue)
@@ -311,6 +337,7 @@ Warning: #ea580c (Orange)
 ## Environment Variables
 
 Create `.env.local` file:
+
 ```
 VITE_API_URL=http://localhost:3000/api
 ```
@@ -318,15 +345,18 @@ VITE_API_URL=http://localhost:3000/api
 ## Troubleshooting
 
 ### Port 5173 Already in Use
+
 ```bash
 npm run dev -- --port 3000
 ```
 
 ### Hot Module Replacement Not Working
+
 - Clear browser cache
 - Restart development server
 
 ### Build Size Issues
+
 ```bash
 npm run build
 # Check dist folder size
