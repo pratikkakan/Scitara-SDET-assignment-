@@ -1,0 +1,1 @@
+{"version":3,"file":"userEvents.js","sourceRoot":"","sources":["../../src/websocket/userEvents.ts"],"names":[],"mappings":";;;AACA,qCAGkB;AAClB,iDAAuD;AAE1C,QAAA,sBAAsB,GAAG;IACpC,eAAe,CAAC,IAAU;QACxB,oCAAqB,CAAC,IAAI,CACxB,uBAAc,CAAC,YAAY,EAC3B,IAAA,qCAA4B,EAAC,IAAI,CAAC,CACnC,CAAC;IACJ,CAAC;CACF,CAAC"}
