@@ -206,7 +206,9 @@ test.describe("UI: Cart & Checkout - Complete Purchase Flow", () => {
       expect(subtotal).toBeGreaterThan(0);
     });
 
-    test("Should update price when quantity changes", async ({ pageManager }) => {
+    test("Should update price when quantity changes", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const cartPage = pageManager.cartPage;
 
@@ -239,7 +241,9 @@ test.describe("UI: Cart & Checkout - Complete Purchase Flow", () => {
   // ============= CHECKOUT FORM VALIDATION - POSITIVE =============
 
   test.describe("✓ Checkout Form - Positive Scenarios", () => {
-    test("Should complete checkout with valid data", async ({ pageManager }) => {
+    test("Should complete checkout with valid data", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const checkoutPage = pageManager.checkoutPage;
 
@@ -291,7 +295,7 @@ test.describe("UI: Cart & Checkout - Complete Purchase Flow", () => {
 
       const firstName = await checkoutPage.getFirstName();
       expect(firstName).toContain(
-        checkoutFormData.firstName?.substring(0, 5) || ""
+        checkoutFormData.firstName?.substring(0, 5) || "",
       );
     });
 
@@ -434,7 +438,9 @@ test.describe("UI: Cart & Checkout - Complete Purchase Flow", () => {
       expect(isErrorVisible).toBe(true);
     });
 
-    test("Should show error for invalid phone format", async ({ pageManager }) => {
+    test("Should show error for invalid phone format", async ({
+      pageManager,
+    }) => {
       const checkoutPage = pageManager.checkoutPage;
 
       await checkoutPage.navigate();
@@ -490,8 +496,7 @@ test.describe("UI: Cart & Checkout - Complete Purchase Flow", () => {
       await cartPage.navigate();
       await cartPage.waitForCartToLoad();
 
-      const isCheckoutButtonVisible =
-        await cartPage.isCheckoutButtonVisible();
+      const isCheckoutButtonVisible = await cartPage.isCheckoutButtonVisible();
 
       // Empty cart should not have checkout button enabled
       expect(isCheckoutButtonVisible).toBe(false);
@@ -577,7 +582,9 @@ test.describe("UI: Cart & Checkout - Complete Purchase Flow", () => {
   // ============= CONTINUE SHOPPING FLOW =============
 
   test.describe("✓ Cart Navigation - Continue Shopping", () => {
-    test("Should navigate back to products from cart", async ({ pageManager }) => {
+    test("Should navigate back to products from cart", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const cartPage = pageManager.cartPage;
 

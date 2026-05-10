@@ -3,6 +3,7 @@
 ## 📋 Overview
 
 This comprehensive test suite covers **100% of API endpoints** and **complete e-commerce UI workflows** with:
+
 - ✅ **Positive scenarios** - Success paths and valid data
 - ❌ **Negative scenarios** - Error handling and validation
 - 📊 **Contract testing** - Request/Response schema validation (AJV)
@@ -37,6 +38,7 @@ automation/tests/
 ### ✅ API Testing (3 Files - 100+ Tests)
 
 #### **1. usersComprehensive.spec.ts** - CRUD Operations
+
 ```
 ✓ Create User (POST /api/users)
   • Positive: Valid data, minimal fields, all fields, multiple users
@@ -66,6 +68,7 @@ automation/tests/
 ```
 
 #### **2. apiContractTesting.spec.ts** - Contract Validation (NEW)
+
 ```
 ✓ Request Validation Contracts
   • POST payload validates createUserPayloadSchema
@@ -107,6 +110,7 @@ automation/tests/
 ### ✅ UI Testing (4 Files - 150+ Tests)
 
 #### **1. eCommerceComprehensive.spec.ts** - Complete User Workflows
+
 ```
 ✓ Product Listing Page
   • Display all products with name and price
@@ -138,6 +142,7 @@ automation/tests/
 ```
 
 #### **2. checkoutComprehensive.spec.ts** - Cart & Checkout (NEW)
+
 ```
 ✓ Cart Management
   • Empty cart display
@@ -174,6 +179,7 @@ automation/tests/
 ```
 
 #### **3. productDetailsComprehensive.spec.ts** - Product Details (NEW)
+
 ```
 ✓ Product Information
   • Display name, price, description
@@ -224,6 +230,7 @@ automation/tests/
 ```
 
 #### **4. productListingComprehensive.spec.ts** - Product Discovery (Bonus)
+
 ```
 ✓ Product Listing Display
   • Display product listing page
@@ -269,6 +276,7 @@ automation/tests/
 ---
 
 ### ✅ WebSocket Testing (Existing)
+
 ```
 websocketComprehensive.spec.ts
 ✓ WebSocket Connection establishment
@@ -282,115 +290,122 @@ websocketComprehensive.spec.ts
 ## 🔧 Page Object Model (POM) Architecture
 
 ### PageManager (Fixture)
+
 ```typescript
-pageManager.productListingPage  // ProductListingPage
-pageManager.productDetailsPage  // ProductDetailsPage
-pageManager.cartPage            // CartPage
-pageManager.checkoutPage        // CheckoutPage
-pageManager.basePage            // BasePage (utilities)
+pageManager.productListingPage; // ProductListingPage
+pageManager.productDetailsPage; // ProductDetailsPage
+pageManager.cartPage; // CartPage
+pageManager.checkoutPage; // CheckoutPage
+pageManager.basePage; // BasePage (utilities)
 
 // Convenience methods
-pageManager.navigateToHome()
-pageManager.navigateToCart()
-pageManager.navigateToCheckout()
-pageManager.navigateToProduct(id)
-pageManager.completePurchaseFlow(formData)
+pageManager.navigateToHome();
+pageManager.navigateToCart();
+pageManager.navigateToCheckout();
+pageManager.navigateToProduct(id);
+pageManager.completePurchaseFlow(formData);
 ```
 
 ### ProductListingPage Methods
+
 ```typescript
-getProductCount()
-getFirstProductName()
-getFirstProductPrice()
-clickFirstProduct()
-clickProductByName(name)
-clickAddToCartForProduct(index)
-addAllProductsToCart(count)
-getCartCount()
-goToCart()
-searchProducts(query)
-clearSearch()
-filterByCategory(category)
-getSelectedCategory()
-isProductListingVisible()
-isLoadingVisible()
-isEmptyStateVisible()
-waitForProductsToLoad()
-waitForLoadingToComplete()
+getProductCount();
+getFirstProductName();
+getFirstProductPrice();
+clickFirstProduct();
+clickProductByName(name);
+clickAddToCartForProduct(index);
+addAllProductsToCart(count);
+getCartCount();
+goToCart();
+searchProducts(query);
+clearSearch();
+filterByCategory(category);
+getSelectedCategory();
+isProductListingVisible();
+isLoadingVisible();
+isEmptyStateVisible();
+waitForProductsToLoad();
+waitForLoadingToComplete();
 ```
 
 ### CartPage Methods
+
 ```typescript
-navigate()
-getItemCount()
-getItemCountFromHeader()
-getItemByProductId(id)
-updateItemQuantity(productId, quantity)
-removeItem(productId)
-removeAllItems()
-getSubtotalPrice()
-getTaxPrice()
-getShippingPrice()
-getTotalPrice()
-getTotalPriceAsNumber()
-proceedToCheckout()
-continueShopping()
-isCartPageVisible()
-isEmptyCartVisible()
-isCheckoutButtonVisible()
-waitForCartToLoad()
+navigate();
+getItemCount();
+getItemCountFromHeader();
+getItemByProductId(id);
+updateItemQuantity(productId, quantity);
+removeItem(productId);
+removeAllItems();
+getSubtotalPrice();
+getTaxPrice();
+getShippingPrice();
+getTotalPrice();
+getTotalPriceAsNumber();
+proceedToCheckout();
+continueShopping();
+isCartPageVisible();
+isEmptyCartVisible();
+isCheckoutButtonVisible();
+waitForCartToLoad();
 ```
 
 ### CheckoutPage Methods (Enhanced)
+
 ```typescript
-navigate()
-fillCheckoutForm(data)
-setFirstName/LastName/Email/Phone/Address/City/ZipCode()
-submitOrder()
-goBackToCart()
-getErrorMessage()
-getFirstNameError(), getEmailError(), etc.
-isFirstNameErrorVisible(), isEmailErrorVisible(), etc.
-isCheckoutFormVisible()
-isOrderConfirmationVisible()
-getOrderId()
-getOrderSuccessTitle()
-backToHome()
-waitForCheckoutPageToLoad()
-waitForOrderConfirmation()
-completeCheckout(formData)
+navigate();
+fillCheckoutForm(data);
+setFirstName / LastName / Email / Phone / Address / City / ZipCode();
+submitOrder();
+goBackToCart();
+getErrorMessage();
+(getFirstNameError(),
+  getEmailError(),
+  etc.isFirstNameErrorVisible(),
+  isEmailErrorVisible(),
+  etc.isCheckoutFormVisible());
+isOrderConfirmationVisible();
+getOrderId();
+getOrderSuccessTitle();
+backToHome();
+waitForCheckoutPageToLoad();
+waitForOrderConfirmation();
+completeCheckout(formData);
 ```
 
 ### ProductDetailsPage Methods (Enhanced)
+
 ```typescript
-navigateToProduct(id)
-getProductTitle() / getProductName() / getName()
-getPrice()
-getDescription()
-getCategory()
-getRating()
-getStockStatus()
-isImageVisible()
-getImageSrc()
-getImageAltText()
-getImageCount()
-canZoomImage()
-zoomImage()
-getQuantity()
-isQuantitySelectorVisible()
-setQuantity(qty)
-increaseQuantity()
-decreaseQuantity()
-addToCart()
-addToCartWithQuantity(qty)
-getSuccessMessage()
-goBack()
-isProductDetailsVisible()
-isAddToCartButtonEnabled()
-waitForProductDetailsToLoad()
-hasRelatedProducts()
-clickFirstRelatedProduct()
-getProductId()
+navigateToProduct(id);
+getProductTitle() / getProductName() / getName();
+getPrice();
+getDescription();
+getCategory();
+getRating();
+getStockStatus();
+isImageVisible();
+getImageSrc();
+getImageAltText();
+getImageCount();
+canZoomImage();
+zoomImage();
+getQuantity();
+isQuantitySelectorVisible();
+setQuantity(qty);
+increaseQuantity();
+decreaseQuantity();
+addToCart();
+addToCartWithQuantity(qty);
+getSuccessMessage();
+goBack();
+isProductDetailsVisible();
+isAddToCartButtonEnabled();
+waitForProductDetailsToLoad();
+hasRelatedProducts();
+clickFirstRelatedProduct();
+getProductId();
 ```
 
 ---
@@ -398,20 +413,22 @@ getProductId()
 ## 📊 Schema Validation (AJV)
 
 ### Schemas Used
+
 ```typescript
-userSchema                  // Single user object
-usersListSchema            // Array of users
-createUserPayloadSchema    // POST request body
-updateUserPayloadSchema    // PUT request body
-errorResponseSchema        // Error responses
+userSchema; // Single user object
+usersListSchema; // Array of users
+createUserPayloadSchema; // POST request body
+updateUserPayloadSchema; // PUT request body
+errorResponseSchema; // Error responses
 ```
 
 ### Validation Functions
+
 ```typescript
-validateSchema(data, schema)              // Returns boolean
-getSchemaErrors(data, schema)            // Returns {isValid, errors, data}
-assertSchemaValid(data, schema, name)    // Throws on invalid
-validateResponseContract(response, contract)
+validateSchema(data, schema); // Returns boolean
+getSchemaErrors(data, schema); // Returns {isValid, errors, data}
+assertSchemaValid(data, schema, name); // Throws on invalid
+validateResponseContract(response, contract);
 ```
 
 ---
@@ -419,20 +436,21 @@ validateResponseContract(response, contract)
 ## 🧪 Test Data Fixtures
 
 ### User Test Data (`fixtures/userTestData.ts`)
+
 ```typescript
-validUser                 // Complete valid user
-validUserMinimal         // Minimal required fields
-invalidUser              // Multiple validation errors
-userMissingFirstName     // Missing firstName
-userMissingLastName      // Missing lastName
-userMissingEmail         // Missing email
-userInvalidEmail         // Invalid email format
-userInvalidPhone         // Invalid phone format
-userExceedsMaxLength     // Name exceeds max length
-testUsers               // Array of 5 test users
-updateUserData          // Update payload example
-checkoutFormData        // Valid checkout form
-invalidCheckoutData     // Invalid checkout form
+validUser; // Complete valid user
+validUserMinimal; // Minimal required fields
+invalidUser; // Multiple validation errors
+userMissingFirstName; // Missing firstName
+userMissingLastName; // Missing lastName
+userMissingEmail; // Missing email
+userInvalidEmail; // Invalid email format
+userInvalidPhone; // Invalid phone format
+userExceedsMaxLength; // Name exceeds max length
+testUsers; // Array of 5 test users
+updateUserData; // Update payload example
+checkoutFormData; // Valid checkout form
+invalidCheckoutData; // Invalid checkout form
 ```
 
 ---
@@ -440,11 +458,13 @@ invalidCheckoutData     // Invalid checkout form
 ## 🚀 Running Tests
 
 ### Run All Tests
+
 ```bash
 npm test
 ```
 
 ### Run Specific Test Suite
+
 ```bash
 npm run test:api          # All API tests
 npm run test:ui           # All UI tests
@@ -456,6 +476,7 @@ npx playwright test tests/ui/checkoutComprehensive.spec.ts
 ```
 
 ### Run with Options
+
 ```bash
 npm run test:headed       # Show browser
 npm run test:debug        # Debug mode
@@ -468,35 +489,41 @@ npm run test:report       # View HTML report
 ## ✨ Key Features
 
 ### ✅ Comprehensive Coverage
+
 - **Positive scenarios**: All happy paths tested
 - **Negative scenarios**: Validation errors, edge cases
 - **Contract testing**: Request/response schema validation
 - **Data-driven**: Multiple data sets per scenario
 
 ### ✅ POM Best Practices
+
 - Lazy loading of page objects
 - Centralized selectors
 - Reusable helper methods
 - Clean separation of concerns
 
 ### ✅ Fixtures & Test Data
+
 - Organized test data by category
 - Positive and negative data sets
 - Easy to extend with new scenarios
 
 ### ✅ Error Handling
+
 - Graceful error messages
 - Schema validation with AJV
 - Retry logic for flaky tests
 - Screenshot on failure
 
 ### ✅ Accessibility
+
 - Alt text validation
 - Heading hierarchy checks
 - Button label validation
 - Semantic HTML checks
 
 ### ✅ Clean Code
+
 - Consistent naming conventions
 - Well-documented tests
 - Organized describe blocks
@@ -506,12 +533,12 @@ npm run test:report       # View HTML report
 
 ## 📈 Test Metrics
 
-| Category | Count | Status |
-|----------|-------|--------|
-| API Tests | 50+ | ✅ Complete |
-| Contract Tests | 40+ | ✅ Complete |
-| UI Tests | 150+ | ✅ Complete |
-| WebSocket Tests | 10+ | ✅ Complete |
+| Category        | Count    | Status       |
+| --------------- | -------- | ------------ |
+| API Tests       | 50+      | ✅ Complete  |
+| Contract Tests  | 40+      | ✅ Complete  |
+| UI Tests        | 150+     | ✅ Complete  |
+| WebSocket Tests | 10+      | ✅ Complete  |
 | **Total Tests** | **250+** | **✅ Ready** |
 
 ---
@@ -519,23 +546,27 @@ npm run test:report       # View HTML report
 ## 🎓 What This Demonstrates
 
 ### Problem Solving
+
 - ✅ Identified all test gaps
 - ✅ Designed comprehensive coverage strategy
 - ✅ Implemented best practices (POM, fixtures, contracts)
 
 ### Clean Code
+
 - ✅ Well-organized file structure
 - ✅ DRY principles throughout
 - ✅ Reusable page objects and fixtures
 - ✅ Consistent naming and documentation
 
 ### Automation Excellence
+
 - ✅ API contract testing with AJV
 - ✅ Complete E2E workflows
 - ✅ Negative scenario testing
 - ✅ Data-driven test execution
 
 ### Technical Knowledge
+
 - ✅ Playwright best practices
 - ✅ JSON Schema validation (AJV)
 - ✅ TypeScript for type safety
@@ -559,6 +590,7 @@ test("Should validate {contract} for {endpoint}", async () => {})
 ## 🔄 Continuous Integration
 
 Tests are configured for CI/CD:
+
 - ✅ Multiple browser testing (Chromium, Firefox, Safari)
 - ✅ HTML report generation
 - ✅ JUnit XML output for CI systems
@@ -570,6 +602,7 @@ Tests are configured for CI/CD:
 ## 🎯 Next Steps for Enhancement
 
 Optional additions:
+
 1. **Performance testing** - Load times, API response times
 2. **Visual regression** - Screenshot comparison
 3. **Accessibility testing** - Full axe-core integration

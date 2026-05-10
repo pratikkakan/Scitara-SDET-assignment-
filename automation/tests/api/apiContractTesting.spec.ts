@@ -55,10 +55,7 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
       const requestBody = validUser;
 
       // Validate request payload matches schema
-      const requestValid = validateSchema(
-        requestBody,
-        createUserPayloadSchema
-      );
+      const requestValid = validateSchema(requestBody, createUserPayloadSchema);
       expect(requestValid).toBe(true);
 
       const response = await request.post(apiUrl, {
@@ -76,7 +73,7 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
 
       const requestValid = validateSchema(
         invalidPayload,
-        createUserPayloadSchema
+        createUserPayloadSchema,
       );
       expect(requestValid).toBe(false);
 
@@ -87,13 +84,12 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
       expect(response.status()).toBeGreaterThanOrEqual(400);
     });
 
-    test("Should accept optional phone field in request", async ({ request }) => {
+    test("Should accept optional phone field in request", async ({
+      request,
+    }) => {
       const requestBody = validUser;
 
-      const requestValid = validateSchema(
-        requestBody,
-        createUserPayloadSchema
-      );
+      const requestValid = validateSchema(requestBody, createUserPayloadSchema);
       expect(requestValid).toBe(true);
 
       const response = await request.post(apiUrl, {
@@ -107,10 +103,7 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
     test("Should validate minimal valid request", async ({ request }) => {
       const requestBody = validUserMinimal;
 
-      const requestValid = validateSchema(
-        requestBody,
-        createUserPayloadSchema
-      );
+      const requestValid = validateSchema(requestBody, createUserPayloadSchema);
       expect(requestValid).toBe(true);
 
       const response = await request.post(apiUrl, {
@@ -154,7 +147,7 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
       // Validate update request matches schema
       const requestValid = validateSchema(
         updatePayload,
-        updateUserPayloadSchema
+        updateUserPayloadSchema,
       );
       expect(requestValid).toBe(true);
 
@@ -182,7 +175,7 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
 
       const requestValid = validateSchema(
         updatePayload,
-        updateUserPayloadSchema
+        updateUserPayloadSchema,
       );
       expect(requestValid).toBe(true);
 
@@ -289,7 +282,9 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
       createdUserIds.push(body.id);
     });
 
-    test("Should not include sensitive data in response", async ({ request }) => {
+    test("Should not include sensitive data in response", async ({
+      request,
+    }) => {
       const response = await request.post(apiUrl, {
         data: validUser,
       });
@@ -384,7 +379,9 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
       expect(response.status()).toBe(200);
     });
 
-    test("Should return 200 OK on successful GET by ID", async ({ request }) => {
+    test("Should return 200 OK on successful GET by ID", async ({
+      request,
+    }) => {
       const createRes = await request.post(apiUrl, {
         data: validUser,
       });
@@ -464,7 +461,9 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
       expect(body).toHaveProperty("status");
     });
 
-    test("Should return consistent error response format", async ({ request }) => {
+    test("Should return consistent error response format", async ({
+      request,
+    }) => {
       // Test multiple error scenarios
       const errorTests = [
         userInvalidEmail,
@@ -530,7 +529,9 @@ test.describe("API: Contract Testing - Request/Response Validation", () => {
       expect(response.status()).toBe(200);
     });
 
-    test("Should have appropriate Cache-Control headers", async ({ request }) => {
+    test("Should have appropriate Cache-Control headers", async ({
+      request,
+    }) => {
       const response = await request.get(apiUrl);
 
       // Cache-Control header might be present

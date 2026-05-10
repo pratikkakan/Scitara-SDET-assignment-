@@ -30,9 +30,7 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
 
       expect(productNameAfter).toBeTruthy();
       if (productNameBefore) {
-        expect(productNameAfter).toContain(
-          productNameBefore.substring(0, 10)
-        );
+        expect(productNameAfter).toContain(productNameBefore.substring(0, 10));
       }
     });
 
@@ -91,11 +89,13 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       // Stock status should indicate availability
       expect(
         stockStatus?.toLowerCase().includes("in stock") ||
-          stockStatus?.toLowerCase().includes("available")
+          stockStatus?.toLowerCase().includes("available"),
       ).toBe(true);
     });
 
-    test("Should display product rating if available", async ({ pageManager }) => {
+    test("Should display product rating if available", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const detailsPage = pageManager.productDetailsPage;
 
@@ -222,7 +222,9 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       expect(quantity).toBe("1");
     });
 
-    test("Should increase quantity using plus button", async ({ pageManager }) => {
+    test("Should increase quantity using plus button", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const detailsPage = pageManager.productDetailsPage;
 
@@ -240,7 +242,9 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       expect(parseInt(quantity || "0")).toBeGreaterThanOrEqual(2);
     });
 
-    test("Should decrease quantity using minus button", async ({ pageManager }) => {
+    test("Should decrease quantity using minus button", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const detailsPage = pageManager.productDetailsPage;
 
@@ -257,9 +261,7 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       await detailsPage.increaseQuantity();
       await pageManager.page.waitForTimeout(100);
 
-      const quantityBefore = parseInt(
-        (await detailsPage.getQuantity()) || "0"
-      );
+      const quantityBefore = parseInt((await detailsPage.getQuantity()) || "0");
 
       // Now decrease
       await detailsPage.decreaseQuantity();
@@ -322,8 +324,7 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
         const quantity = await detailsPage.getQuantity();
         // Should either reject or cap at available stock
         expect(
-          parseInt(quantity || "0") <= 999 ||
-            parseInt(quantity || "0") === 1
+          parseInt(quantity || "0") <= 999 || parseInt(quantity || "0") === 1,
         ).toBe(true);
       } catch {
         // Form validation might prevent this, which is expected
@@ -435,7 +436,9 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
   // ============= PRODUCT COMPARISON & RECOMMENDATIONS =============
 
   test.describe("✓ Related Products & Navigation", () => {
-    test("Should display related or similar products", async ({ pageManager }) => {
+    test("Should display related or similar products", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const detailsPage = pageManager.productDetailsPage;
 
@@ -454,7 +457,9 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       }
     });
 
-    test("Should allow navigation to related product", async ({ pageManager }) => {
+    test("Should allow navigation to related product", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const detailsPage = pageManager.productDetailsPage;
 
@@ -575,7 +580,7 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
 
       // Rapidly click add to cart
       const addButton = detailsPage.page.locator(
-        '[data-testid="add-to-cart-btn"]'
+        '[data-testid="add-to-cart-btn"]',
       );
 
       await addButton.click();
@@ -592,7 +597,9 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       expect(cartBadge).toBeTruthy();
     });
 
-    test("Should handle network timeout gracefully", async ({ pageManager }) => {
+    test("Should handle network timeout gracefully", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
 
       await listingPage.navigate();
@@ -621,15 +628,14 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       await listingPage.clickFirstProduct();
       await detailsPage.waitForProductDetailsToLoad();
 
-      const heading = await pageManager.page
-        .locator("h1")
-        .first()
-        .isVisible();
+      const heading = await pageManager.page.locator("h1").first().isVisible();
 
       expect(heading).toBe(true);
     });
 
-    test("Should have accessible quantity controls", async ({ pageManager }) => {
+    test("Should have accessible quantity controls", async ({
+      pageManager,
+    }) => {
       const listingPage = pageManager.productListingPage;
       const detailsPage = pageManager.productDetailsPage;
 
@@ -639,7 +645,7 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       await detailsPage.waitForProductDetailsToLoad();
 
       const quantitySelector = pageManager.page.locator(
-        '[data-testid*="quantity"]'
+        '[data-testid*="quantity"]',
       );
 
       const isVisible = await quantitySelector.first().isVisible();
@@ -656,7 +662,7 @@ test.describe("UI: Product Details - In-Depth Product View", () => {
       await detailsPage.waitForProductDetailsToLoad();
 
       const addToCartButton = pageManager.page.locator(
-        '[data-testid="add-to-cart-btn"]'
+        '[data-testid="add-to-cart-btn"]',
       );
 
       const isVisible = await addToCartButton.isVisible();
