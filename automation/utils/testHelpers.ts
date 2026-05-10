@@ -2,7 +2,7 @@
  * Common test utilities
  */
 
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, Page } from "@playwright/test";
 
 /**
  * Custom test fixture with utilities
@@ -14,7 +14,7 @@ export const test = base.extend({
 /**
  * Wait for network idle
  */
-export async function waitForNetworkIdle(page: (typeof base)["page"]) {
+export async function waitForNetworkIdle(page: Page) {
   await page.waitForLoadState("networkidle");
 }
 

@@ -2,4 +2,20 @@
  * Export all fixtures for test data
  */
 
-export { validUser, invalidUser, testUsers } from "./userTestData";
+export {
+  validUser,
+  validUserMinimal,
+  invalidUser,
+  userMissingFirstName,
+  userMissingLastName,
+  userInvalidEmail,
+  userMissingEmail,
+  userInvalidPhone,
+  userExceedsMaxLength,
+  testUsers,
+  updateUserData,
+  partialUpdateData,
+  checkoutFormData,
+  invalidCheckoutData,
+} from "./userTestData";
+export * from "./pageManagerFixture";
