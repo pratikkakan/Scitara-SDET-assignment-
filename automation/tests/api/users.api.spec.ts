@@ -206,7 +206,7 @@ test.describe('Users API — Complete Test Suite', () => {
       expect(validateSchema(body, usersListSchema)).toBe(true);
     });
 
-    test('[Contract] POST response includes Content-Type: application/json', async ({ userApi }) => {
+    test('[Contract] GET response includes Content-Type: application/json', async ({ userApi }) => {
       const response = await userApi.getUsers();
       const contentType = response.headers()['content-type'];
       expect(contentType).toContain('application/json');
