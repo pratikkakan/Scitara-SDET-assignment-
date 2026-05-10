@@ -13,7 +13,7 @@ export const testProducts: TestProduct[] = [
     price: 199.99,
     category: 'Electronics',
     quantity: 2,
-  },
+   },
   {
     id: '2',
     name: 'USB-C Fast Charger',

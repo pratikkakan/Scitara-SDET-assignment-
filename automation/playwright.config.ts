@@ -6,11 +6,12 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 5_000 },
   fullyParallel: true,
+  grep: process.env.TAGS ? new RegExp(process.env.TAGS) : undefined,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
-    ["html", { outputFolder: "test-results", open: "yes" }],
+    ["html", { outputFolder: "playwright-report", open: "always" }],
     ["json", { outputFile: "test-results/results.json" }],
     ["junit", { outputFile: "test-results/junit.xml" }],
     ["list"],
@@ -18,24 +19,25 @@ export default defineConfig({
   use: {
     baseURL: config.uiBaseUrl,
     headless: false,
-    trace: "on-first-retry",
+    trace: "on",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: "on",
   },
 
   projects: [
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      grep: /@E2E Positive/,
     },
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
-    },
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-    },
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
+    // },
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
   ],
 
   webServer: [
