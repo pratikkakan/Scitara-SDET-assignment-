@@ -1,3 +1,4 @@
+/// <reference types="node" />
 /**
  * Comprehensive WebSocket Tests - User Events
  * Tests WebSocket integration for user creation events
@@ -38,7 +39,6 @@ test.describe("WebSocket Integration - User Events", () => {
       page.on("websocket", (ws) => {
         wsConnected = true;
         wsUrl = ws.url();
-        console.log(`WebSocket connected: ${ws.url()}`);
       });
 
       // Navigate to page that connects to WebSocket
