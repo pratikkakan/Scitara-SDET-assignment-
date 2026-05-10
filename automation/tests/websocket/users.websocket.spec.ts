@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { test, expect } from '@/fixtures/base.fixture';
 import { validUser, testUsers } from '@/testData/api/users/userData';
-import { userSchema } from '@/schemas/user.schema';
+import { userSchema } from '@/testData/api/schemas/user.schema';
 import { validateSchema } from '@/utils/validators/schemaValidator';
 
 const WS_EVENT_TIMEOUT_MS = 3_000;

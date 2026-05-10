@@ -6,7 +6,7 @@ import {
   createUserPayloadSchema,
   updateUserPayloadSchema,
   errorResponseSchema,
-} from '@/schemas/user.schema';
+} from '@/testData/api/schemas/user.schema';
 import { validateSchema, getSchemaErrors, validateResponseContract } from '@/utils/validators/schemaValidator';
 
 test.describe('Users API — Contract Testing', () => {

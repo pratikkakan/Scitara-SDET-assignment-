@@ -12,7 +12,7 @@ import {
   updateUserData,
   partialUpdateData,
 } from '@/testData/api/users/userData';
-import { userSchema, usersListSchema, errorResponseSchema } from '@/schemas/user.schema';
+import { userSchema, usersListSchema, errorResponseSchema } from '@/testData/api/schemas/user.schema';
 import { validateSchema } from '@/utils/validators/schemaValidator';
 
 test.describe('Users API — CRUD Operations', () => {
