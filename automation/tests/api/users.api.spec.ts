@@ -37,7 +37,7 @@ test.describe('Users API — Complete Test Suite', () => {
 
   test.describe('Endpoint Health & Discovery', () => {
     test('[Discovery] GET / returns API info → 200 + JSON', async ({ userApi }) => {
-      const response = await userApi.request.get('http://localhost:3000/');
+      const response = await userApi.getRoot();
       const body = await response.json() as Record<string, unknown>;
 
       expect(response.status()).toBe(200);
@@ -47,7 +47,7 @@ test.describe('Users API — Complete Test Suite', () => {
     });
 
     test('[Discovery] GET /health returns status → 200 + {status:"ok"}', async ({ userApi }) => {
-      const response = await userApi.request.get('http://localhost:3000/health');
+      const response = await userApi.getHealth();
       const body = await response.json() as Record<string, unknown>;
 
       expect(response.status()).toBe(200);

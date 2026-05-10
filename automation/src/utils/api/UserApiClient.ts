@@ -41,6 +41,14 @@ export class UserApiClient {
     return this.request.delete(this.url(Endpoints.userById(id)));
   }
 
+  getRoot() {
+    return this.request.get(this.baseUrl + '/');
+  }
+
+  getHealth() {
+    return this.request.get(this.baseUrl + '/health');
+  }
+
   private url(path: string): string {
     return `${this.baseUrl}${path}`;
   }
