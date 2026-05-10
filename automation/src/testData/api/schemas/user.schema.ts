@@ -19,7 +19,6 @@ export const userSchema = {
     updatedAt: { type: "string", format: "date-time" },
   },
   required: ["id", "firstName", "lastName", "email", "createdAt", "updatedAt"],
-  additionalProperties: false,
 };
 
 // Schema for list of users
@@ -42,7 +41,6 @@ export const createUserPayloadSchema = {
     },
   },
   required: ["firstName", "lastName", "email"],
-  additionalProperties: false,
 };
 
 // Schema for update user request payload
@@ -57,29 +55,36 @@ export const updateUserPayloadSchema = {
       pattern: "^\\+?[1-9]\\d{1,14}$",
     },
   },
-  additionalProperties: false,
 };
 
-// Error response schema
+// Error response schema - matches backend error envelope
 export const errorResponseSchema = {
   type: "object",
   properties: {
-    message: { type: "string" },
-    status: { type: "number" },
-    errors: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          field: { type: "string" },
-          message: { type: "string" },
+    success: { type: "boolean", enum: [false] },
+    error: {
+      type: "object",
+      properties: {
+        message: { type: "string" },
+        code: { type: "string" },
+        details: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              field: { type: "string" },
+              message: { type: "string" },
+            },
+            required: ["field", "message"],
+          },
         },
-        required: ["field", "message"],
       },
+      required: ["message", "code"],
     },
+    timestamp: { type: "string", format: "date-time" },
+    path: { type: "string" },
   },
-  required: ["message", "status"],
-  additionalProperties: false,
+  required: ["success", "error", "timestamp", "path"],
 };
 
 // Success response wrapper (for consistency)
@@ -92,4 +97,22 @@ export const successResponseSchema = {
   },
   required: ["message", "status"],
   additionalProperties: false,
+};
+
+// WebSocket USER_CREATED event payload schema
+export const wsUserCreatedEventSchema = {
+  type: "object",
+  properties: {
+    eventId: { type: "string" },
+    type: { type: "string", enum: ["USER_CREATED"] },
+    occurredAt: { type: "string", format: "date-time" },
+    data: {
+      type: "object",
+      properties: {
+        user: userSchema,
+      },
+      required: ["user"],
+    },
+  },
+  required: ["eventId", "type", "occurredAt", "data"],
 };

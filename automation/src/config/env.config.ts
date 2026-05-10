@@ -10,7 +10,7 @@ const envConfigs: Record<Env, EnvConfig> = {
   local: {
     apiBaseUrl: 'http://localhost:3000',
     uiBaseUrl: 'http://localhost:5173',
-    wsUrl: 'ws://localhost:3001',
+    wsUrl: 'ws://localhost:3000',
   },
   staging: {
     apiBaseUrl: 'https://api.staging.example.com',
