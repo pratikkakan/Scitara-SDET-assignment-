@@ -1,12 +1,16 @@
-import { test, expect } from '@/fixtures/base.fixture';
-import { validCheckout } from '@/testData/ui/checkout/checkoutData';
-import { testProducts, multipleProducts } from '@/testData/ui/products/productData';
+import { test, expect } from "@/fixtures/base.fixture";
+import { validCheckout } from "@/testData/ui/checkout/checkoutData";
+import {
+  testProducts,
+  multipleProducts,
+} from "@/testData/ui/products/productData";
 
-test.describe('Complete Purchase Flow — E2E', () => {
-
+test.describe("Complete Purchase Flow — E2E", () => {
   // ─── End-to-End Positive Flow ──────────────────────────────────────────────
 
-  test('[Positive] complete purchase flow — add multiple products and complete checkout', async ({ pom }) => {
+  test("[Positive] complete purchase flow — add multiple products and complete checkout", async ({
+    pom,
+  }) => {
     // Act: Navigate to product listing and verify products are available
     await pom.productListingPage.navigate();
     await pom.productListingPage.waitForLoadingToComplete();
@@ -67,7 +71,9 @@ test.describe('Complete Purchase Flow — E2E', () => {
   // ─── Per-Product Detail Page Validation ────────────────────────────────────
 
   for (const product of testProducts) {
-    test(`[Positive] product detail page loads correctly — ${product.name}`, async ({ pom }) => {
+    test(`[Positive] product detail page loads correctly — ${product.name}`, async ({
+      pom,
+    }) => {
       await pom.productDetailsPage.navigateToProduct(product.id);
       await pom.productDetailsPage.waitForPageToLoad();
 
@@ -95,9 +101,11 @@ test.describe('Complete Purchase Flow — E2E', () => {
 
   // ─── End-to-End Negative Flow ──────────────────────────────────────────────
 
-  test('[Negative] purchase flow fails with validation error on incomplete checkout form', async ({ pom }) => {
+  test("[Negative] purchase flow fails with validation error on incomplete checkout form", async ({
+    pom,
+  }) => {
     // Act: Navigate directly to a product and add it to cart (avoids the listing-page quick-add alert)
-    await pom.productDetailsPage.navigateToProduct('1');
+    await pom.productDetailsPage.navigateToProduct("1");
     await pom.productDetailsPage.waitForPageToLoad();
     await pom.productDetailsPage.addToCart();
 
@@ -114,12 +122,12 @@ test.describe('Complete Purchase Flow — E2E', () => {
     // Act: Submit the form with firstName intentionally blank
     await pom.checkoutPage.fillOrderDetails({
       ...validCheckout,
-      firstName: '',
+      firstName: "",
     });
     await pom.checkoutPage.submitOrder();
 
     // Assert: Validation error is shown for the required firstName field
-    await pom.checkoutPage.assertFieldError('firstName');
+    await pom.checkoutPage.assertFieldError("firstName");
 
     // Assert: User remains on the checkout page (order was not placed)
     await pom.checkoutPage.assertFormVisible();

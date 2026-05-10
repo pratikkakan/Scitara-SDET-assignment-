@@ -1,20 +1,29 @@
-import { expect } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base/BasePage';
 import { CartBadgeComponent } from './components/CartBadgeComponent';
 import { waitForNetworkIdle, waitForHidden } from '@/utils/helpers/waitHelpers';
 
 export class ProductListingPage extends BasePage {
-  readonly cartBadge = new CartBadgeComponent(this.page);
+  readonly cartBadge: CartBadgeComponent;
+  readonly productItems: Locator;
+  readonly searchInput: Locator;
+  readonly categoryFilter: Locator;
+  readonly loadingSpinner: Locator;
+  readonly emptyState: Locator;
+  readonly headerCartBtn: Locator;
 
-  // Locators
-  get productItems()   { return this.page.locator('[data-testid^="product-card-"]'); }
-  get searchInput()    { return this.page.getByPlaceholder('Search products...'); }
-  get categoryFilter() { return this.page.getByTestId('category-filter'); }
-  get loadingSpinner() { return this.page.getByTestId('loading-spinner'); }
-  get emptyState()     { return this.page.getByTestId('empty-state'); }
-  get headerCartBtn()  { return this.page.getByTestId('header-cart-btn'); }
+  constructor(page: Page) {
+    super(page);
+    this.cartBadge = new CartBadgeComponent(page);
+    this.productItems = page.locator('[data-testid^="product-card-"]');
+    this.searchInput = page.getByPlaceholder('Search products...');
+    this.categoryFilter = page.getByTestId('category-filter');
+    this.loadingSpinner = page.getByTestId('loading-spinner');
+    this.emptyState = page.getByTestId('empty-state');
+    this.headerCartBtn = page.getByTestId('header-cart-btn');
+  }
 
-  productById(id: string) {
+  productById(id: string): Locator {
     return this.page.getByTestId(`product-card-${id}`);
   }
 
@@ -29,8 +38,7 @@ export class ProductListingPage extends BasePage {
   }
 
   async addProductToCartById(productId: string): Promise<void> {
-    const addButton = this.page.getByTestId(`quick-add-${productId}`);
-    await addButton.click();
+    await this.page.getByTestId(`quick-add-${productId}`).click();
     await this.page.waitForTimeout(100);
   }
 
@@ -98,9 +106,8 @@ export class ProductListingPage extends BasePage {
   }
 
   async waitForLoadingToComplete(): Promise<void> {
-    const spinner = this.loadingSpinner;
-    if (await spinner.isVisible()) {
-      await waitForHidden(spinner, 10_000);
+    if (await this.loadingSpinner.isVisible()) {
+      await waitForHidden(this.loadingSpinner, 10_000);
     }
   }
 

@@ -1,9 +1,11 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 export class CartBadgeComponent {
-  private readonly badge: Locator;
+  readonly page: Page;
+  readonly badge: Locator;
 
   constructor(page: Page) {
+    this.page = page;
     this.badge = page.getByTestId('cart-count');
   }
 

@@ -1,33 +1,44 @@
-import { expect } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './base/BasePage';
-import { waitForHidden } from '@/utils/helpers/waitHelpers';
 
 export class CartPage extends BasePage {
-  // Locators
-  get cartContainer()      { return this.page.getByTestId('cart-page'); }
-  get cartItems()          { return this.page.locator('[data-testid^="cart-item-"]'); }
-  get emptyState()         { return this.page.getByTestId('empty-state'); }
-  get itemCount()          { return this.page.getByTestId('items-count'); }
-  get subtotalPrice()      { return this.page.getByTestId('subtotal'); }
-  get taxPrice()           { return this.page.getByTestId('tax'); }
-  get shippingPrice()      { return this.page.getByTestId('shipping'); }
-  get totalPrice()         { return this.page.getByTestId('total-price'); }
-  get checkoutBtn()        { return this.page.getByTestId('checkout-button'); }
-  get continueShoppingBtn(){ return this.page.getByTestId('continue-shopping-button'); }
+  readonly cartContainer: Locator;
+  readonly cartItems: Locator;
+  readonly emptyState: Locator;
+  readonly itemCount: Locator;
+  readonly subtotalPrice: Locator;
+  readonly taxPrice: Locator;
+  readonly shippingPrice: Locator;
+  readonly totalPrice: Locator;
+  readonly checkoutBtn: Locator;
+  readonly continueShoppingBtn: Locator;
 
-  cartItemById(productId: string) {
+  constructor(page: Page) {
+    super(page);
+    this.cartContainer = page.getByTestId('cart-page');
+    this.cartItems = page.locator('[data-testid^="cart-item-"]');
+    this.emptyState = page.getByTestId('empty-state');
+    this.itemCount = page.getByTestId('items-count');
+    this.subtotalPrice = page.getByTestId('subtotal');
+    this.taxPrice = page.getByTestId('tax');
+    this.shippingPrice = page.getByTestId('shipping');
+    this.totalPrice = page.getByTestId('total-price');
+    this.checkoutBtn = page.getByTestId('checkout-button');
+    this.continueShoppingBtn = page.getByTestId('continue-shopping-button');
+  }
+
+  cartItemById(productId: string): Locator {
     return this.page.getByTestId(`cart-item-${productId}`);
   }
 
-  quantityInputById(productId: string) {
+  quantityInputById(productId: string): Locator {
     return this.page.getByTestId(`quantity-${productId}`);
   }
 
-  removeButtonById(productId: string) {
+  removeButtonById(productId: string): Locator {
     return this.page.getByTestId(`remove-${productId}`);
   }
 
-  // Helper to extract product ID from cart item test ID
   async extractProductIdFromFirstItem(): Promise<string> {
     const firstItem = this.page.locator('[data-testid*="cart-item-"]').first();
     const testId = await firstItem.getAttribute('data-testid');
@@ -78,10 +89,21 @@ export class CartPage extends BasePage {
     return this.cartItems.count();
   }
 
-  async getSubtotal(): Promise<string | null>  { return this.subtotalPrice.textContent(); }
-  async getTax(): Promise<string | null>        { return this.taxPrice.textContent(); }
-  async getShipping(): Promise<string | null>   { return this.shippingPrice.textContent(); }
-  async getTotal(): Promise<string | null>      { return this.totalPrice.textContent(); }
+  async getSubtotal(): Promise<string | null> {
+    return this.subtotalPrice.textContent();
+  }
+
+  async getTax(): Promise<string | null> {
+    return this.taxPrice.textContent();
+  }
+
+  async getShipping(): Promise<string | null> {
+    return this.shippingPrice.textContent();
+  }
+
+  async getTotal(): Promise<string | null> {
+    return this.totalPrice.textContent();
+  }
 
   async getTotalAsNumber(): Promise<number> {
     const text = await this.getTotal();
@@ -92,10 +114,10 @@ export class CartPage extends BasePage {
   async getCartSummary() {
     return {
       itemCount: await this.getItemCount(),
-      subtotal:  await this.getSubtotal(),
-      tax:       await this.getTax(),
-      shipping:  await this.getShipping(),
-      total:     await this.getTotal(),
+      subtotal: await this.getSubtotal(),
+      tax: await this.getTax(),
+      shipping: await this.getShipping(),
+      total: await this.getTotal(),
     };
   }
 
