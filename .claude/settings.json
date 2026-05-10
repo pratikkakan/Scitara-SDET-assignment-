@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npx playwright *)",
-      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")"
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|js|json\\)$\")",
+      "Bash(curl -s http://localhost:3000/api/products)"
     ]
   }
 }

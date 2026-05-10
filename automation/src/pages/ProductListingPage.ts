@@ -7,12 +7,16 @@ export class ProductListingPage extends BasePage {
   readonly cartBadge = new CartBadgeComponent(this.page);
 
   // Locators
-  get productItems()   { return this.page.getByTestId('product-item'); }
+  get productItems()   { return this.page.locator('[data-testid^="product-card-"]'); }
   get searchInput()    { return this.page.getByPlaceholder('Search products...'); }
   get categoryFilter() { return this.page.getByTestId('category-filter'); }
   get loadingSpinner() { return this.page.getByTestId('loading-spinner'); }
   get emptyState()     { return this.page.getByTestId('empty-state'); }
   get headerCartBtn()  { return this.page.getByTestId('header-cart-btn'); }
+
+  productById(id: string) {
+    return this.page.getByTestId(`product-card-${id}`);
+  }
 
   // Navigation
   async navigate(): Promise<void> {
@@ -21,7 +25,13 @@ export class ProductListingPage extends BasePage {
 
   // Actions
   async addProductToCart(index = 0): Promise<void> {
-    await this.productItems.nth(index).getByTestId('add-to-cart-btn').click();
+    await this.productItems.nth(index).locator('[data-testid^="quick-add-"]').click();
+  }
+
+  async addProductToCartById(productId: string): Promise<void> {
+    const addButton = this.page.getByTestId(`quick-add-${productId}`);
+    await addButton.click();
+    await this.page.waitForTimeout(100);
   }
 
   async addMultipleProductsToCart(count: number): Promise<void> {
@@ -63,11 +73,19 @@ export class ProductListingPage extends BasePage {
   }
 
   async getFirstProductName(): Promise<string | null> {
-    return this.productItems.first().getByTestId('product-name').textContent();
+    return this.productItems.first().locator('[data-testid^="product-name-"]').textContent();
   }
 
   async getFirstProductPrice(): Promise<string | null> {
-    return this.productItems.first().getByTestId('product-price').textContent();
+    return this.productItems.first().locator('[data-testid^="product-price-"]').textContent();
+  }
+
+  async getProductNameById(productId: string): Promise<string | null> {
+    return this.productById(productId).locator(`[data-testid="product-name-${productId}"]`).textContent();
+  }
+
+  async getProductPriceById(productId: string): Promise<string | null> {
+    return this.productById(productId).locator(`[data-testid="product-price-${productId}"]`).textContent();
   }
 
   async getSelectedCategory(): Promise<string | null> {

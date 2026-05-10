@@ -1,4 +1,5 @@
 import { test, expect } from '@/fixtures/base.fixture';
+import { testProducts, singleProduct, multipleProducts } from '@/testData/ui/products/productData';
 
 test.describe('Cart — Item Management & Price Summary', () => {
   test.beforeEach(async ({ pom }) => {
@@ -17,7 +18,7 @@ test.describe('Cart — Item Management & Price Summary', () => {
     });
 
     test('[Positive] added product appears in cart', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
+      await pom.productListingPage.addProductToCartById(singleProduct.id);
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
 
@@ -26,15 +27,15 @@ test.describe('Cart — Item Management & Price Summary', () => {
     });
 
     test('[Positive] multiple products all appear in cart', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
-      await pom.productListingPage.addProductToCart(1);
-      await pom.productListingPage.addProductToCart(2);
+      for (const product of multipleProducts) {
+        await pom.productListingPage.addProductToCartById(product.id);
+      }
 
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
 
       const itemCount = await pom.cartPage.getItemCount();
-      expect(itemCount).toBeGreaterThanOrEqual(3);
+      expect(itemCount).toBeGreaterThanOrEqual(multipleProducts.length);
     });
   });
 
@@ -42,17 +43,14 @@ test.describe('Cart — Item Management & Price Summary', () => {
 
   test.describe('Item Actions', () => {
     test('[Positive] removes a single item, cart count decreases', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
-      await pom.productListingPage.addProductToCart(1);
+      await pom.productListingPage.addProductToCartById(testProducts[0].id);
+      await pom.productListingPage.addProductToCartById(testProducts[1].id);
 
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
 
       const countBefore = await pom.cartPage.getItemCount();
-
-      const firstItem = pom.cartPage.page.locator('[data-testid*="cart-item-"]').first();
-      const testId = await firstItem.getAttribute('data-testid');
-      const productId = testId?.replace('cart-item-', '') ?? '';
+      const productId = await pom.cartPage.extractProductIdFromFirstItem();
 
       await pom.cartPage.removeItem(productId);
 
@@ -61,8 +59,8 @@ test.describe('Cart — Item Management & Price Summary', () => {
     });
 
     test('[Positive] removes all items; empty state shown', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
-      await pom.productListingPage.addProductToCart(1);
+      await pom.productListingPage.addProductToCartById(testProducts[0].id);
+      await pom.productListingPage.addProductToCartById(testProducts[1].id);
 
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
@@ -72,15 +70,12 @@ test.describe('Cart — Item Management & Price Summary', () => {
     });
 
     test('[Positive] updating quantity persists in cart', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
+      await pom.productListingPage.addProductToCartById(singleProduct.id);
 
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
 
-      const firstItem = pom.cartPage.page.locator('[data-testid*="cart-item-"]').first();
-      const testId = await firstItem.getAttribute('data-testid');
-      const productId = testId?.replace('cart-item-', '') ?? '';
-
+      const productId = await pom.cartPage.extractProductIdFromFirstItem();
       await pom.cartPage.updateItemQuantity(productId, 5);
     });
   });
@@ -89,7 +84,7 @@ test.describe('Cart — Item Management & Price Summary', () => {
 
   test.describe('Price Summary', () => {
     test('[Positive] price fields all present after adding product', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
+      await pom.productListingPage.addProductToCartById(singleProduct.id);
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
 
@@ -102,7 +97,7 @@ test.describe('Cart — Item Management & Price Summary', () => {
     });
 
     test('[Positive] total is greater than zero after adding product', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
+      await pom.productListingPage.addProductToCartById(singleProduct.id);
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
 
@@ -111,16 +106,13 @@ test.describe('Cart — Item Management & Price Summary', () => {
     });
 
     test('[Positive] total increases when quantity is updated', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
+      await pom.productListingPage.addProductToCartById(singleProduct.id);
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
 
       const totalBefore = await pom.cartPage.getTotalAsNumber();
 
-      const firstItem = pom.cartPage.page.locator('[data-testid*="cart-item-"]').first();
-      const testId = await firstItem.getAttribute('data-testid');
-      const productId = testId?.replace('cart-item-', '') ?? '';
-
+      const productId = await pom.cartPage.extractProductIdFromFirstItem();
       await pom.cartPage.updateItemQuantity(productId, 3);
 
       const totalAfter = await pom.cartPage.getTotalAsNumber();
@@ -132,7 +124,7 @@ test.describe('Cart — Item Management & Price Summary', () => {
 
   test.describe('Navigation', () => {
     test('[Positive] continue shopping returns to product listing', async ({ pom }) => {
-      await pom.productListingPage.addProductToCart(0);
+      await pom.productListingPage.addProductToCartById(singleProduct.id);
       await pom.cartPage.navigate();
       await pom.cartPage.waitForCartToLoad();
       await pom.cartPage.continueShopping();

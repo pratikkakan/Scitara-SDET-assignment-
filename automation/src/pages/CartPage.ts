@@ -5,26 +5,39 @@ import { waitForHidden } from '@/utils/helpers/waitHelpers';
 export class CartPage extends BasePage {
   // Locators
   get cartContainer()      { return this.page.getByTestId('cart-page'); }
-  get cartItems()          { return this.page.getByTestId('cart-items'); }
+  get cartItems()          { return this.page.locator('[data-testid^="cart-item-"]'); }
   get emptyState()         { return this.page.getByTestId('empty-state'); }
   get itemCount()          { return this.page.getByTestId('items-count'); }
-  get subtotalPrice()      { return this.page.getByTestId('subtotal-price'); }
-  get taxPrice()           { return this.page.getByTestId('tax-price'); }
-  get shippingPrice()      { return this.page.getByTestId('shipping-price'); }
+  get subtotalPrice()      { return this.page.getByTestId('subtotal'); }
+  get taxPrice()           { return this.page.getByTestId('tax'); }
+  get shippingPrice()      { return this.page.getByTestId('shipping'); }
   get totalPrice()         { return this.page.getByTestId('total-price'); }
-  get checkoutBtn()        { return this.page.getByTestId('checkout-btn'); }
-  get continueShoppingBtn(){ return this.page.getByTestId('continue-shopping-btn'); }
+  get checkoutBtn()        { return this.page.getByTestId('checkout-button'); }
+  get continueShoppingBtn(){ return this.page.getByTestId('continue-shopping-button'); }
 
   cartItemById(productId: string) {
     return this.page.getByTestId(`cart-item-${productId}`);
   }
 
   quantityInputById(productId: string) {
-    return this.page.getByTestId(`item-quantity-${productId}`);
+    return this.page.getByTestId(`quantity-${productId}`);
   }
 
   removeButtonById(productId: string) {
-    return this.page.getByTestId(`remove-item-btn-${productId}`);
+    return this.page.getByTestId(`remove-${productId}`);
+  }
+
+  // Helper to extract product ID from cart item test ID
+  async extractProductIdFromFirstItem(): Promise<string> {
+    const firstItem = this.page.locator('[data-testid*="cart-item-"]').first();
+    const testId = await firstItem.getAttribute('data-testid');
+    return testId?.replace('cart-item-', '') ?? '';
+  }
+
+  async extractProductIdFromIndex(index: number): Promise<string> {
+    const item = this.page.locator('[data-testid*="cart-item-"]').nth(index);
+    const testId = await item.getAttribute('data-testid');
+    return testId?.replace('cart-item-', '') ?? '';
   }
 
   // Navigation
@@ -43,19 +56,20 @@ export class CartPage extends BasePage {
 
   async updateItemQuantity(productId: string, quantity: number): Promise<void> {
     await this.quantityInputById(productId).fill(String(quantity));
-    await this.page.getByTestId('update-qty-btn').click();
+    await this.page.waitForTimeout(200);
   }
 
   async removeItem(productId: string): Promise<void> {
     await this.removeButtonById(productId).click();
+    await this.page.waitForTimeout(400);
   }
 
   async removeAllItems(): Promise<void> {
-    const removeButtons = this.page.locator('[data-testid*="remove-item-btn-"]');
+    const removeButtons = this.page.locator('[data-testid^="remove-"]');
     const count = await removeButtons.count();
     for (let i = count - 1; i >= 0; i--) {
       await removeButtons.nth(i).click();
-      await waitForHidden(this.page.getByTestId(`cart-item-`), 2_000).catch(() => {});
+      await this.page.waitForTimeout(100);
     }
   }
 
