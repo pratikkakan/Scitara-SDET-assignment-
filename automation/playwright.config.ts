@@ -28,7 +28,7 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      grep: /@E2E Positive/,
+      grep: /@E2E Negative/,
     },
     // {
     //   name: "firefox",
