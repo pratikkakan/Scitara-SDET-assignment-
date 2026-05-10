@@ -1,172 +1,113 @@
-/**
- * Cart Page - Page Object Model
- */
-
-import { BasePage } from "./BasePage";
+import { expect } from '@playwright/test';
+import { BasePage } from './base/BasePage';
+import { waitForHidden } from '@/utils/helpers/waitHelpers';
 
 export class CartPage extends BasePage {
-  // Selectors
-  readonly cartPage = '[data-testid="cart-page"]';
-  readonly cartTitle = '[data-testid="cart-title"]';
-  readonly itemsHeader = '[data-testid="items-header"]';
-  readonly cartItems = '[data-testid="cart-items"]';
-  readonly cartItem = '[data-testid="cart-item-"]';
-  readonly itemName = '[data-testid="item-name-"]';
-  readonly itemPrice = '[data-testid="item-unit-price-"]';
-  readonly itemCategory = '[data-testid="item-category-"]';
-  readonly itemImage = '[data-testid="item-image-"]';
-  readonly quantityInput = '[data-testid="item-quantity-"]';
-  readonly removeItemBtn = '[data-testid="remove-item-btn-"]';
-  readonly updateQuantityBtn = '[data-testid="update-qty-btn"]';
-  readonly subtotalPrice = '[data-testid="subtotal-price"]';
-  readonly taxPrice = '[data-testid="tax-price"]';
-  readonly shippingPrice = '[data-testid="shipping-price"]';
-  readonly totalPrice = '[data-testid="total-price"]';
-  readonly checkoutBtn = '[data-testid="checkout-btn"]';
-  readonly continueShoppingBtn = '[data-testid="continue-shopping-btn"]';
-  readonly emptyCartMessage = '[data-testid="empty-state"]';
-  readonly cartItemCount = '[data-testid="items-count"]';
+  // Locators
+  get cartContainer()      { return this.page.getByTestId('cart-page'); }
+  get cartItems()          { return this.page.getByTestId('cart-items'); }
+  get emptyState()         { return this.page.getByTestId('empty-state'); }
+  get itemCount()          { return this.page.getByTestId('items-count'); }
+  get subtotalPrice()      { return this.page.getByTestId('subtotal-price'); }
+  get taxPrice()           { return this.page.getByTestId('tax-price'); }
+  get shippingPrice()      { return this.page.getByTestId('shipping-price'); }
+  get totalPrice()         { return this.page.getByTestId('total-price'); }
+  get checkoutBtn()        { return this.page.getByTestId('checkout-btn'); }
+  get continueShoppingBtn(){ return this.page.getByTestId('continue-shopping-btn'); }
+
+  cartItemById(productId: string) {
+    return this.page.getByTestId(`cart-item-${productId}`);
+  }
+
+  quantityInputById(productId: string) {
+    return this.page.getByTestId(`item-quantity-${productId}`);
+  }
+
+  removeButtonById(productId: string) {
+    return this.page.getByTestId(`remove-item-btn-${productId}`);
+  }
 
   // Navigation
-  async navigate() {
-    await this.goto("/cart");
+  async navigate(): Promise<void> {
+    await super.navigate('/cart');
   }
 
-  // Cart item operations
+  // Actions
+  async proceedToCheckout(): Promise<void> {
+    await this.checkoutBtn.click();
+  }
+
+  async continueShopping(): Promise<void> {
+    await this.continueShoppingBtn.click();
+  }
+
+  async updateItemQuantity(productId: string, quantity: number): Promise<void> {
+    await this.quantityInputById(productId).fill(String(quantity));
+    await this.page.getByTestId('update-qty-btn').click();
+  }
+
+  async removeItem(productId: string): Promise<void> {
+    await this.removeButtonById(productId).click();
+  }
+
+  async removeAllItems(): Promise<void> {
+    const removeButtons = this.page.locator('[data-testid*="remove-item-btn-"]');
+    const count = await removeButtons.count();
+    for (let i = count - 1; i >= 0; i--) {
+      await removeButtons.nth(i).click();
+      await waitForHidden(this.page.getByTestId(`cart-item-`), 2_000).catch(() => {});
+    }
+  }
+
+  // Queries
   async getItemCount(): Promise<number> {
-    return await this.getElementCount(this.cartItems);
+    return this.cartItems.count();
   }
 
-  async getItemCountFromHeader(): Promise<string | null> {
-    return await this.getTextByTestId("items-count");
-  }
+  async getSubtotal(): Promise<string | null>  { return this.subtotalPrice.textContent(); }
+  async getTax(): Promise<string | null>        { return this.taxPrice.textContent(); }
+  async getShipping(): Promise<string | null>   { return this.shippingPrice.textContent(); }
+  async getTotal(): Promise<string | null>      { return this.totalPrice.textContent(); }
 
-  async getItemNameByIndex(index: number): Promise<string | null> {
-    const items = await this.page.locator(this.cartItem).all();
-    if (items.length > index) {
-      return await items[index]
-        .locator(`${this.itemName}${this.getProductIdFromSelector()}`)
-        .textContent();
-    }
-    return null;
-  }
-
-  async getItemPriceByIndex(index: number): Promise<string | null> {
-    const items = await this.page.locator(this.cartItem).all();
-    if (items.length > index) {
-      return await items[index].textContent();
-    }
-    return null;
-  }
-
-  private getProductIdFromSelector(): string {
-    // This is a helper to dynamically get product ID
-    return "";
-  }
-
-  async getItemByProductId(productId: string) {
-    return this.page.locator(`[data-testid="cart-item-${productId}"]`);
-  }
-
-  async updateItemQuantity(productId: string, newQuantity: number) {
-    const quantityInput = this.page.locator(
-      `[data-testid="item-quantity-${productId}"]`,
-    );
-    await quantityInput.fill(String(newQuantity));
-    await this.clickByTestId("update-qty-btn");
-  }
-
-  async removeItem(productId: string) {
-    await this.clickByTestId(`remove-item-btn-${productId}`);
-  }
-
-  async removeAllItems() {
-    const removeButtons = await this.page
-      .locator('[data-testid*="remove-item-btn-"]')
-      .all();
-
-    // Remove items in reverse order to avoid index issues
-    for (let i = removeButtons.length - 1; i >= 0; i--) {
-      await removeButtons[i].click();
-      await this.page.waitForTimeout(200);
-    }
-  }
-
-  // Price information
-  async getSubtotalPrice(): Promise<string | null> {
-    return await this.getTextByTestId("subtotal-price");
-  }
-
-  async getTaxPrice(): Promise<string | null> {
-    return await this.getTextByTestId("tax-price");
-  }
-
-  async getShippingPrice(): Promise<string | null> {
-    return await this.getTextByTestId("shipping-price");
-  }
-
-  async getTotalPrice(): Promise<string | null> {
-    return await this.getTextByTestId("total-price");
-  }
-
-  // Extract numeric value from price string (e.g., "$100.00" -> 100)
-  private extractPrice(priceStr: string | null): number {
-    if (!priceStr) return 0;
-    const match = priceStr.match(/[\d.]+/);
+  async getTotalAsNumber(): Promise<number> {
+    const text = await this.getTotal();
+    const match = text?.match(/[\d.]+/);
     return match ? parseFloat(match[0]) : 0;
   }
 
-  async getTotalPriceAsNumber(): Promise<number> {
-    const price = await this.getTotalPrice();
-    return this.extractPrice(price);
-  }
-
-  // Checkout operations
-  async proceedToCheckout() {
-    await this.clickByTestId("checkout-btn");
-  }
-
-  async continueShopping() {
-    await this.clickByTestId("continue-shopping-btn");
-  }
-
-  // Visibility checks
-  async isCartPageVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("cart-page");
-  }
-
-  async isEmptyCartVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("empty-state");
-  }
-
-  async isCheckoutButtonVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("checkout-btn");
-  }
-
-  // Wait for page to load
-  async waitForCartToLoad() {
-    await this.waitForElement(this.cartPage, 10000);
-  }
-
-  // Check if cart is empty
-  async isCartEmpty(): Promise<boolean> {
-    return await this.isEmptyCartVisible();
-  }
-
-  // Get cart summary
   async getCartSummary() {
-    const itemCount = await this.getItemCount();
-    const subtotal = this.extractPrice(await this.getSubtotalPrice());
-    const tax = this.extractPrice(await this.getTaxPrice());
-    const shipping = this.extractPrice(await this.getShippingPrice());
-    const total = this.extractPrice(await this.getTotalPrice());
-
     return {
-      itemCount,
-      subtotal,
-      tax,
-      shipping,
-      total,
+      itemCount: await this.getItemCount(),
+      subtotal:  await this.getSubtotal(),
+      tax:       await this.getTax(),
+      shipping:  await this.getShipping(),
+      total:     await this.getTotal(),
     };
+  }
+
+  // Waits
+  async waitForCartToLoad(): Promise<void> {
+    await this.cartContainer.waitFor({ state: 'visible', timeout: 10_000 });
+  }
+
+  // Assertion helpers
+  async assertCartVisible(): Promise<void> {
+    await expect(this.cartContainer).toBeVisible();
+  }
+
+  async assertCartEmpty(): Promise<void> {
+    await expect(this.emptyState).toBeVisible();
+  }
+
+  async assertCartHasItems(expected: number): Promise<void> {
+    await expect(this.cartItems).toHaveCount(expected);
+  }
+
+  async assertTotalPrice(expected: string): Promise<void> {
+    await expect(this.totalPrice).toContainText(expected);
+  }
+
+  async assertCheckoutButtonVisible(): Promise<void> {
+    await expect(this.checkoutBtn).toBeVisible();
   }
 }

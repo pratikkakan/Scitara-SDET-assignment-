@@ -1,206 +1,110 @@
-/**
- * Product Details Page - Page Object Model
- */
-
-import { BasePage } from "./BasePage";
+import { expect } from '@playwright/test';
+import { BasePage } from './base/BasePage';
+import { CartBadgeComponent } from './components/CartBadgeComponent';
 
 export class ProductDetailsPage extends BasePage {
-  // Selectors
-  readonly productDetails = '[data-testid="product-details"]';
-  readonly productImage = '[data-testid="product-image"]';
-  readonly productTitle = '[data-testid="product-title"]';
-  readonly productPrice = '[data-testid="product-price"]';
-  readonly productDescription = '[data-testid="product-description"]';
-  readonly productCategory = '[data-testid="product-category"]';
-  readonly productRating = '[data-testid="product-rating"]';
-  readonly addToCartBtn = '[data-testid="add-to-cart-btn"]';
-  readonly quantityInput = '[data-testid="quantity-input"]';
-  readonly decreaseQtyBtn = '[data-testid="decrease-qty-btn"]';
-  readonly increaseQtyBtn = '[data-testid="increase-qty-btn"]';
-  readonly backButton = '[data-testid="back-button"]';
-  readonly relatedProducts = '[data-testid="related-products"]';
-  readonly stockStatus = '[data-testid="stock-status"]';
+  readonly cartBadge = new CartBadgeComponent(this.page);
+
+  // Locators
+  get productDetails()    { return this.page.getByTestId('product-details'); }
+  get productTitle()      { return this.page.getByTestId('product-title'); }
+  get productPrice()      { return this.page.getByTestId('product-price'); }
+  get productDescription(){ return this.page.getByTestId('product-description'); }
+  get productCategory()   { return this.page.getByTestId('product-category'); }
+  get productRating()     { return this.page.getByTestId('product-rating'); }
+  get productImage()      { return this.page.getByTestId('product-image'); }
+  get stockStatus()       { return this.page.getByTestId('stock-status'); }
+  get quantityInput()     { return this.page.getByTestId('quantity-input'); }
+  get increaseQtyBtn()    { return this.page.getByTestId('increase-qty-btn'); }
+  get decreaseQtyBtn()    { return this.page.getByTestId('decrease-qty-btn'); }
+  get addToCartBtn()      { return this.page.getByTestId('add-to-cart-btn'); }
+  get backButton()        { return this.page.getByTestId('back-button'); }
+  get relatedProducts()   { return this.page.getByTestId('related-products'); }
 
   // Navigation
-  async navigateToProduct(productId: string | number) {
-    await this.goto(`/products/${productId}`);
+  async navigateToProduct(productId: string | number): Promise<void> {
+    await super.navigate(`/products/${productId}`);
   }
 
-  // Product information
-  async getProductTitle(): Promise<string | null> {
-    return await this.getTextByTestId("product-title");
+  // Actions
+  async addToCart(): Promise<void> {
+    await this.addToCartBtn.click();
   }
 
-  // Aliases for convenience
-  async getProductName(): Promise<string | null> {
-    return await this.getProductTitle();
+  async setQuantity(quantity: number): Promise<void> {
+    await this.quantityInput.fill(String(quantity));
   }
 
-  async getName(): Promise<string | null> {
-    return await this.getProductTitle();
+  async increaseQuantity(): Promise<void> {
+    await this.increaseQtyBtn.click();
   }
 
-  async getProductPrice(): Promise<string | null> {
-    return await this.getTextByTestId("product-price");
+  async decreaseQuantity(): Promise<void> {
+    await this.decreaseQtyBtn.click();
   }
 
-  async getPrice(): Promise<string | null> {
-    return await this.getProductPrice();
-  }
-
-  async getProductDescription(): Promise<string | null> {
-    return await this.getTextByTestId("product-description");
-  }
-
-  async getDescription(): Promise<string | null> {
-    return await this.getProductDescription();
-  }
-
-  async getProductCategory(): Promise<string | null> {
-    return await this.getTextByTestId("product-category");
-  }
-
-  async getCategory(): Promise<string | null> {
-    return await this.getProductCategory();
-  }
-
-  async getProductRating(): Promise<string | null> {
-    return await this.getTextByTestId("product-rating");
-  }
-
-  async getRating(): Promise<string | null> {
-    return await this.getProductRating();
-  }
-
-  async getStockStatus(): Promise<string | null> {
-    return await this.getTextByTestId("stock-status");
-  }
-
-  // Image operations
-  async isImageVisible(): Promise<boolean> {
-    return await this.isVisible(this.productImage);
-  }
-
-  async getImageSrc(): Promise<string | null> {
-    return await this.getAttribute(this.productImage, "src");
-  }
-
-  async getImageAltText(): Promise<string | null> {
-    return await this.getAttribute(this.productImage, "alt");
-  }
-
-  async getImageCount(): Promise<number> {
-    return await this.getElementCount('[data-testid*="product-image"]');
-  }
-
-  async canZoomImage(): Promise<boolean> {
-    try {
-      const zoomButton = await this.page
-        .locator('[data-testid="zoom-image-btn"]')
-        .isVisible();
-      return zoomButton;
-    } catch {
-      return false;
-    }
-  }
-
-  async zoomImage() {
-    try {
-      await this.clickByTestId("zoom-image-btn");
-    } catch {
-      // Zoom might not be available
-    }
-  }
-
-  // Quantity operations
-  async getQuantity(): Promise<string | null> {
-    return await this.page.locator(this.quantityInput).inputValue();
-  }
-
-  async isQuantitySelectorVisible(): Promise<boolean> {
-    return await this.isVisible(this.quantityInput);
-  }
-
-  async setQuantity(quantity: number) {
-    const input = this.page.locator(this.quantityInput);
-    await input.fill(String(quantity));
-  }
-
-  async increaseQuantity() {
-    await this.clickByTestId("increase-qty-btn");
-  }
-
-  async decreaseQuantity() {
-    await this.clickByTestId("decrease-qty-btn");
-  }
-
-  async increaseQuantityByCount(count: number) {
+  async increaseQuantityBy(count: number): Promise<void> {
     for (let i = 0; i < count; i++) {
       await this.increaseQuantity();
     }
   }
 
-  // Add to cart
-  async addToCart() {
-    await this.clickByTestId("add-to-cart-btn");
-  }
-
-  async addToCartWithQuantity(quantity: number) {
+  async addToCartWithQuantity(quantity: number): Promise<void> {
     await this.setQuantity(quantity);
     await this.addToCart();
   }
 
-  async getSuccessMessage(): Promise<string | null> {
-    try {
-      return await this.getTextByTestId("success-message");
-    } catch {
-      return null;
-    }
+  async goBack(): Promise<void> {
+    await this.backButton.click();
   }
 
-  // Navigation
-  async goBack() {
-    await this.clickByTestId("back-button");
+  async clickFirstRelatedProduct(): Promise<void> {
+    await this.page.getByTestId('related-product-link').first().click();
   }
 
-  // Visibility checks
-  async isProductDetailsVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("product-details");
-  }
+  // Queries
+  async getTitle(): Promise<string | null>       { return this.productTitle.textContent(); }
+  async getPrice(): Promise<string | null>       { return this.productPrice.textContent(); }
+  async getDescription(): Promise<string | null> { return this.productDescription.textContent(); }
+  async getCategory(): Promise<string | null>    { return this.productCategory.textContent(); }
+  async getRating(): Promise<string | null>      { return this.productRating.textContent(); }
+  async getStockStatus(): Promise<string | null> { return this.stockStatus.textContent(); }
+  async getQuantity(): Promise<string>           { return this.quantityInput.inputValue(); }
+  async getImageSrc(): Promise<string | null>    { return this.productImage.getAttribute('src'); }
+  async getImageAlt(): Promise<string | null>    { return this.productImage.getAttribute('alt'); }
 
-  async isAddToCartButtonEnabled(): Promise<boolean> {
-    return await this.isEnabled(this.addToCartBtn);
-  }
-
-  // Wait for page to load
-  async waitForProductDetailsToLoad() {
-    await this.waitForElement(this.productDetails, 10000);
-  }
-
-  // Check if related products are visible
-  async areRelatedProductsVisible(): Promise<boolean> {
-    const count = await this.getElementCount(this.relatedProducts);
-    return count > 0;
-  }
-
-  async hasRelatedProducts(): Promise<boolean> {
-    return await this.areRelatedProductsVisible();
-  }
-
-  async clickFirstRelatedProduct() {
-    const relatedProductLinks = await this.page
-      .locator('[data-testid="related-product-link"]')
-      .all();
-
-    if (relatedProductLinks.length > 0) {
-      await relatedProductLinks[0].click();
-    }
-  }
-
-  // Get product URL
   async getProductId(): Promise<string | null> {
     const url = await this.getUrl();
-    const match = url.match(/\/products\/(\d+)/);
-    return match ? match[1] : null;
+    return url.match(/\/products\/(\d+)/)?.[1] ?? null;
+  }
+
+  // Waits
+  async waitForPageToLoad(): Promise<void> {
+    await this.productDetails.waitFor({ state: 'visible', timeout: 10_000 });
+  }
+
+  // Assertion helpers
+  async assertPageVisible(): Promise<void> {
+    await expect(this.productDetails).toBeVisible();
+  }
+
+  async assertTitle(expected: string): Promise<void> {
+    await expect(this.productTitle).toHaveText(expected);
+  }
+
+  async assertStockStatus(expected: string): Promise<void> {
+    await expect(this.stockStatus).toContainText(expected);
+  }
+
+  async assertImageVisible(): Promise<void> {
+    await expect(this.productImage).toBeVisible();
+  }
+
+  async assertAddToCartEnabled(): Promise<void> {
+    await expect(this.addToCartBtn).toBeEnabled();
+  }
+
+  async assertQuantity(expected: number): Promise<void> {
+    await expect(this.quantityInput).toHaveValue(String(expected));
   }
 }

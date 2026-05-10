@@ -1,10 +1,7 @@
-/**
- * Checkout Page - Page Object Model
- */
+import { expect } from '@playwright/test';
+import { BasePage } from './base/BasePage';
 
-import { BasePage } from "./BasePage";
-
-export type CheckoutFormData = {
+export interface CheckoutFormData {
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -15,273 +12,111 @@ export type CheckoutFormData = {
   cardNumber?: string;
   expiryDate?: string;
   cvv?: string;
-};
+}
 
 export class CheckoutPage extends BasePage {
-  // Selectors - Form fields
-  readonly checkoutContainer = '[data-testid="checkout-container"]';
-  readonly firstNameInput = '[data-testid="first-name-input"]';
-  readonly lastNameInput = '[data-testid="last-name-input"]';
-  readonly emailInput = '[data-testid="email-input"]';
-  readonly phoneInput = '[data-testid="phone-input"]';
-  readonly addressInput = '[data-testid="address-input"]';
-  readonly cityInput = '[data-testid="city-input"]';
-  readonly zipCodeInput = '[data-testid="zip-code-input"]';
-  readonly cardNumberInput = '[data-testid="card-number-input"]';
-  readonly expiryDateInput = '[data-testid="expiry-date-input"]';
-  readonly cvvInput = '[data-testid="cvv-input"]';
-  readonly submitBtn = '[data-testid="submit-order-btn"]';
-  readonly backBtn = '[data-testid="back-to-cart-btn"]';
+  // Form field locators
+  get firstNameInput()  { return this.page.getByTestId('first-name-input'); }
+  get lastNameInput()   { return this.page.getByTestId('last-name-input'); }
+  get emailInput()      { return this.page.getByTestId('email-input'); }
+  get phoneInput()      { return this.page.getByTestId('phone-input'); }
+  get addressInput()    { return this.page.getByTestId('address-input'); }
+  get cityInput()       { return this.page.getByTestId('city-input'); }
+  get zipCodeInput()    { return this.page.getByTestId('zip-code-input'); }
+  get cardNumberInput() { return this.page.getByTestId('card-number-input'); }
+  get expiryDateInput() { return this.page.getByTestId('expiry-date-input'); }
+  get cvvInput()        { return this.page.getByTestId('cvv-input'); }
+  get submitBtn()       { return this.page.getByTestId('submit-order-btn'); }
+  get backBtn()         { return this.page.getByTestId('back-to-cart-btn'); }
 
-  // Error messages
-  readonly errorContainer = '[data-testid="error-container"]';
-  readonly firstNameError = '[data-testid="first-name-error"]';
-  readonly lastNameError = '[data-testid="last-name-error"]';
-  readonly emailError = '[data-testid="email-error"]';
-  readonly phoneError = '[data-testid="phone-error"]';
-  readonly addressError = '[data-testid="address-error"]';
-  readonly cityError = '[data-testid="city-error"]';
-  readonly zipCodeError = '[data-testid="zip-code-error"]';
-  readonly cardNumberError = '[data-testid="card-number-error"]';
-  readonly expiryDateError = '[data-testid="expiry-date-error"]';
-  readonly cvvError = '[data-testid="cvv-error"]';
+  // Error locators
+  get firstNameError()  { return this.page.getByTestId('first-name-error'); }
+  get lastNameError()   { return this.page.getByTestId('last-name-error'); }
+  get emailError()      { return this.page.getByTestId('email-error'); }
+  get phoneError()      { return this.page.getByTestId('phone-error'); }
+  get addressError()    { return this.page.getByTestId('address-error'); }
+  get cityError()       { return this.page.getByTestId('city-error'); }
+  get zipCodeError()    { return this.page.getByTestId('zip-code-error'); }
+  get cardNumberError() { return this.page.getByTestId('card-number-error'); }
+  get expiryDateError() { return this.page.getByTestId('expiry-date-error'); }
+  get cvvError()        { return this.page.getByTestId('cvv-error'); }
 
-  // Success confirmation
-  readonly orderConfirmation = '[data-testid="order-confirmation"]';
-  readonly orderSuccessTitle = '[data-testid="order-success-title"]';
-  readonly confirmationMessage = '[data-testid="confirmation-message"]';
-  readonly orderId = '[data-testid="order-id"]';
-  readonly backHomeButton = '[data-testid="back-home-button"]';
+  // Confirmation locators
+  get orderConfirmation() { return this.page.getByTestId('order-confirmation'); }
+  get orderSuccessTitle() { return this.page.getByTestId('order-success-title'); }
+  get orderId()           { return this.page.getByTestId('order-id'); }
+  get backHomeButton()    { return this.page.getByTestId('back-home-button'); }
+  get checkoutContainer() { return this.page.getByTestId('checkout-container'); }
 
   // Navigation
-  async navigate() {
-    await this.goto("/checkout");
+  async navigate(): Promise<void> {
+    await super.navigate('/checkout');
   }
 
-  // Form filling
-  async fillCheckoutForm(data: CheckoutFormData) {
-    if (data.firstName) {
-      await this.fillByTestId("first-name-input", data.firstName);
-    }
-    if (data.lastName) {
-      await this.fillByTestId("last-name-input", data.lastName);
-    }
-    if (data.email) {
-      await this.fillByTestId("email-input", data.email);
-    }
-    if (data.phone) {
-      await this.fillByTestId("phone-input", data.phone);
-    }
-    if (data.address) {
-      await this.fillByTestId("address-input", data.address);
-    }
-    if (data.city) {
-      await this.fillByTestId("city-input", data.city);
-    }
-    if (data.zipCode) {
-      await this.fillByTestId("zip-code-input", data.zipCode);
-    }
-    if (data.cardNumber) {
-      await this.fillByTestId("card-number-input", data.cardNumber);
-    }
-    if (data.expiryDate) {
-      await this.fillByTestId("expiry-date-input", data.expiryDate);
-    }
-    if (data.cvv) {
-      await this.fillByTestId("cvv-input", data.cvv);
-    }
+  // Actions
+  async fillOrderDetails(data: CheckoutFormData): Promise<void> {
+    if (data.firstName !== undefined) await this.firstNameInput.fill(data.firstName);
+    if (data.lastName  !== undefined) await this.lastNameInput.fill(data.lastName);
+    if (data.email     !== undefined) await this.emailInput.fill(data.email);
+    if (data.phone     !== undefined) await this.phoneInput.fill(data.phone);
+    if (data.address   !== undefined) await this.addressInput.fill(data.address);
+    if (data.city      !== undefined) await this.cityInput.fill(data.city);
+    if (data.zipCode   !== undefined) await this.zipCodeInput.fill(data.zipCode);
+    if (data.cardNumber!== undefined) await this.cardNumberInput.fill(data.cardNumber);
+    if (data.expiryDate!== undefined) await this.expiryDateInput.fill(data.expiryDate);
+    if (data.cvv       !== undefined) await this.cvvInput.fill(data.cvv);
   }
 
-  // Individual field operations
-  async setFirstName(firstName: string) {
-    await this.fillByTestId("first-name-input", firstName);
+  async submitOrder(): Promise<void> {
+    await this.submitBtn.click();
   }
 
-  async setLastName(lastName: string) {
-    await this.fillByTestId("last-name-input", lastName);
+  async goBackToCart(): Promise<void> {
+    await this.backBtn.click();
   }
 
-  async setEmail(email: string) {
-    await this.fillByTestId("email-input", email);
+  async backToHome(): Promise<void> {
+    await this.backHomeButton.click();
   }
 
-  async setPhone(phone: string) {
-    await this.fillByTestId("phone-input", phone);
-  }
-
-  async setAddress(address: string) {
-    await this.fillByTestId("address-input", address);
-  }
-
-  async setCity(city: string) {
-    await this.fillByTestId("city-input", city);
-  }
-
-  async setZipCode(zipCode: string) {
-    await this.fillByTestId("zip-code-input", zipCode);
-  }
-
-  async setCardNumber(cardNumber: string) {
-    await this.fillByTestId("card-number-input", cardNumber);
-  }
-
-  async setExpiryDate(expiryDate: string) {
-    await this.fillByTestId("expiry-date-input", expiryDate);
-  }
-
-  async setCVV(cvv: string) {
-    await this.fillByTestId("cvv-input", cvv);
-  }
-
-  // Get field values
-  async getFirstName(): Promise<string | null> {
-    return await this.page.locator(this.firstNameInput).inputValue();
-  }
-
-  async getEmail(): Promise<string | null> {
-    return await this.page.locator(this.emailInput).inputValue();
-  }
-
-  async getPhone(): Promise<string | null> {
-    return await this.page.locator(this.phoneInput).inputValue();
-  }
-
-  // Form submission
-  async submitOrder() {
-    await this.clickByTestId("submit-order-btn");
-  }
-
-  async goBackToCart() {
-    await this.clickByTestId("back-to-cart-btn");
-  }
-
-  // Error handling
-  async getErrorMessage(): Promise<string | null> {
-    return await this.getTextByTestId("error-container");
-  }
-
-  async getFirstNameError(): Promise<string | null> {
-    return await this.getTextByTestId("first-name-error");
-  }
-
-  async getLastNameError(): Promise<string | null> {
-    return await this.getTextByTestId("last-name-error");
-  }
-
-  async getEmailError(): Promise<string | null> {
-    return await this.getTextByTestId("email-error");
-  }
-
-  async getPhoneError(): Promise<string | null> {
-    return await this.getTextByTestId("phone-error");
-  }
-
-  async getAddressError(): Promise<string | null> {
-    return await this.getTextByTestId("address-error");
-  }
-
-  async getCityError(): Promise<string | null> {
-    return await this.getTextByTestId("city-error");
-  }
-
-  async getZipCodeError(): Promise<string | null> {
-    return await this.getTextByTestId("zip-code-error");
-  }
-
-  async getCardNumberError(): Promise<string | null> {
-    return await this.getTextByTestId("card-number-error");
-  }
-
-  async getExpiryDateError(): Promise<string | null> {
-    return await this.getTextByTestId("expiry-date-error");
-  }
-
-  async getCVVError(): Promise<string | null> {
-    return await this.getTextByTestId("cvv-error");
-  }
-
-  // Check if error exists
-  async hasFieldError(fieldTestId: string): Promise<boolean> {
-    return await this.isVisibleByTestId(`${fieldTestId}-error`);
-  }
-
-  // Individual error visibility checks
-  async isFirstNameErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("first-name-error");
-  }
-
-  async isLastNameErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("last-name-error");
-  }
-
-  async isEmailErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("email-error");
-  }
-
-  async isPhoneErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("phone-error");
-  }
-
-  async isAddressErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("address-error");
-  }
-
-  async isCityErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("city-error");
-  }
-
-  async isZipCodeErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("zip-code-error");
-  }
-
-  async isCardNumberErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("card-number-error");
-  }
-
-  async isExpiryDateErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("expiry-date-error");
-  }
-
-  async isCVVErrorVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("cvv-error");
-  }
-
-  // Visibility checks
-  async isCheckoutFormVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("checkout-container");
-  }
-
-  async isOrderConfirmationVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("order-confirmation");
-  }
-
-  // Success confirmation
   async getOrderId(): Promise<string | null> {
-    return await this.getTextByTestId("order-id");
+    return this.orderId.textContent();
   }
 
-  async getOrderSuccessTitle(): Promise<string | null> {
-    return await this.getTextByTestId("order-success-title");
+  // Waits
+  async waitForPageToLoad(): Promise<void> {
+    await this.checkoutContainer.waitFor({ state: 'visible', timeout: 10_000 });
   }
 
-  async backToHome() {
-    await this.clickByTestId("back-home-button");
+  async waitForOrderConfirmation(): Promise<void> {
+    await this.orderConfirmation.waitFor({ state: 'visible', timeout: 15_000 });
   }
 
-  // Wait for page to load
-  async waitForCheckoutPageToLoad() {
-    await this.waitForElement(this.checkoutContainer, 10000);
+  // Assertion helpers
+  async assertOrderConfirmed(): Promise<void> {
+    await expect(this.orderConfirmation).toBeVisible();
+    await expect(this.orderSuccessTitle).toBeVisible();
   }
 
-  async waitForOrderConfirmation() {
-    await this.waitForElement(this.orderConfirmation, 15000);
+  async assertFieldError(field: keyof CheckoutFormData, message?: string): Promise<void> {
+    const errorMap: Record<string, ReturnType<typeof this.page.getByTestId>> = {
+      firstName:   this.firstNameError,
+      lastName:    this.lastNameError,
+      email:       this.emailError,
+      phone:       this.phoneError,
+      address:     this.addressError,
+      city:        this.cityError,
+      zipCode:     this.zipCodeError,
+      cardNumber:  this.cardNumberError,
+      expiryDate:  this.expiryDateError,
+      cvv:         this.cvvError,
+    };
+    const errorLocator = errorMap[field];
+    await expect(errorLocator).toBeVisible();
+    if (message) await expect(errorLocator).toContainText(message);
   }
 
-  // Complete checkout flow
-  async completeCheckout(formData: CheckoutFormData) {
-    await this.fillCheckoutForm(formData);
-    await this.submitOrder();
-    await this.waitForOrderConfirmation();
-    return await this.getOrderId();
+  async assertFormVisible(): Promise<void> {
+    await expect(this.checkoutContainer).toBeVisible();
   }
 }

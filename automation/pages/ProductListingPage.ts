@@ -1,138 +1,105 @@
-/**
- * Product Listing Page - Page Object Model
- */
-
-import { BasePage } from "./BasePage";
+import { expect } from '@playwright/test';
+import { BasePage } from './base/BasePage';
+import { CartBadgeComponent } from './components/CartBadgeComponent';
+import { waitForNetworkIdle, waitForHidden } from '@/utils/helpers/waitHelpers';
 
 export class ProductListingPage extends BasePage {
-  // Selectors
-  readonly productListing = '[data-testid="product-listing"]';
-  readonly productItem = '[data-testid="product-item"]';
-  readonly productLink = '[data-testid="product-link"]';
-  readonly addToCartBtn = '[data-testid="add-to-cart-btn"]';
-  readonly cartBadge = '[data-testid="cart-badge"]';
-  readonly searchBox = '[data-testid="search-box"]';
-  readonly searchInput = 'input[placeholder="Search products..."]';
-  readonly categoryFilter = '[data-testid="category-filter"]';
-  readonly loadingSpinner = '[data-testid="loading-spinner"]';
-  readonly emptyState = '[data-testid="empty-state"]';
-  readonly headerCartBtn = '[data-testid="header-cart-btn"]';
-  readonly productPrice = '[data-testid="product-price"]';
-  readonly productName = '[data-testid="product-name"]';
+  readonly cartBadge = new CartBadgeComponent(this.page);
+
+  // Locators
+  get productItems()   { return this.page.getByTestId('product-item'); }
+  get searchInput()    { return this.page.getByPlaceholder('Search products...'); }
+  get categoryFilter() { return this.page.getByTestId('category-filter'); }
+  get loadingSpinner() { return this.page.getByTestId('loading-spinner'); }
+  get emptyState()     { return this.page.getByTestId('empty-state'); }
+  get headerCartBtn()  { return this.page.getByTestId('header-cart-btn'); }
 
   // Navigation
-  async navigate() {
-    await this.goto("/");
+  async navigate(): Promise<void> {
+    await super.navigate('/');
   }
 
-  // Product operations
+  // Actions
+  async addProductToCart(index = 0): Promise<void> {
+    await this.productItems.nth(index).getByTestId('add-to-cart-btn').click();
+  }
+
+  async addMultipleProductsToCart(count: number): Promise<void> {
+    for (let i = 0; i < count; i++) {
+      await this.addProductToCart(i);
+    }
+  }
+
+  async clickFirstProduct(): Promise<void> {
+    await this.productItems.first().getByTestId('product-link').click();
+  }
+
+  async clickProductByName(name: string): Promise<void> {
+    await this.productItems.filter({ hasText: name }).first().getByTestId('product-link').click();
+  }
+
+  async searchFor(query: string): Promise<void> {
+    await this.searchInput.fill(query);
+    await waitForNetworkIdle(this.page);
+  }
+
+  async clearSearch(): Promise<void> {
+    await this.searchInput.clear();
+    await waitForNetworkIdle(this.page);
+  }
+
+  async filterByCategory(category: string): Promise<void> {
+    await this.categoryFilter.selectOption(category);
+    await waitForNetworkIdle(this.page);
+  }
+
+  async goToCart(): Promise<void> {
+    await this.headerCartBtn.click();
+  }
+
+  // Queries
   async getProductCount(): Promise<number> {
-    return await this.getElementCount(this.productItem);
+    return this.productItems.count();
   }
 
   async getFirstProductName(): Promise<string | null> {
-    return await this.page
-      .locator(this.productItem)
-      .first()
-      .locator(this.productName)
-      .textContent();
+    return this.productItems.first().getByTestId('product-name').textContent();
   }
 
   async getFirstProductPrice(): Promise<string | null> {
-    return await this.page
-      .locator(this.productItem)
-      .first()
-      .locator(this.productPrice)
-      .textContent();
-  }
-
-  async clickFirstProduct() {
-    await this.page.locator(this.productLink).first().click();
-  }
-
-  async clickProductByName(productName: string) {
-    await this.page
-      .locator(this.productLink)
-      .filter({ hasText: productName })
-      .first()
-      .click();
-  }
-
-  async clickAddToCartForProduct(productIndex: number = 0) {
-    const buttons = await this.page.locator(this.addToCartBtn).all();
-    if (buttons.length > productIndex) {
-      await buttons[productIndex].click();
-    }
-  }
-
-  async addAllProductsToCart(count?: number) {
-    const productCount = count || (await this.getProductCount());
-    for (let i = 0; i < productCount; i++) {
-      await this.clickAddToCartForProduct(i);
-      // Small delay to avoid race conditions
-      await this.page.waitForTimeout(100);
-    }
-  }
-
-  // Cart operations
-  async getCartCount(): Promise<string | null> {
-    return await this.getTextByTestId("cart-badge");
-  }
-
-  async goToCart() {
-    await this.clickByTestId("header-cart-btn");
-  }
-
-  // Search operations
-  async searchProducts(query: string) {
-    const searchInput = this.page.locator(this.searchInput);
-    await searchInput.fill("");
-    await searchInput.type(query);
-    await this.page.waitForTimeout(500); // Wait for search to complete
-  }
-
-  async clearSearch() {
-    const searchInput = this.page.locator(this.searchInput);
-    await searchInput.fill("");
-    await this.page.waitForTimeout(500);
-  }
-
-  // Filter operations
-  async filterByCategory(category: string) {
-    await this.selectByTestId("category-filter", category);
-    await this.page.waitForTimeout(500); // Wait for filter to apply
+    return this.productItems.first().getByTestId('product-price').textContent();
   }
 
   async getSelectedCategory(): Promise<string | null> {
-    return await this.page
-      .locator(this.categoryFilter)
-      .inputValue()
-      .catch(() => null);
+    return this.categoryFilter.inputValue().catch(() => null);
   }
 
-  // Visibility checks
-  async isProductListingVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("product-listing");
+  // Waits
+  async waitForProductsToLoad(): Promise<void> {
+    await this.productItems.first().waitFor({ state: 'visible', timeout: 10_000 });
   }
 
-  async isLoadingVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("loading-spinner");
-  }
-
-  async isEmptyStateVisible(): Promise<boolean> {
-    return await this.isVisibleByTestId("empty-state");
-  }
-
-  // Wait for page to load
-  async waitForProductsToLoad() {
-    await this.waitForElement(this.productItem, 10000);
-  }
-
-  async waitForLoadingToComplete() {
-    const loadingLocator = this.page.locator(this.loadingSpinner);
-    const count = await loadingLocator.count();
-    if (count > 0) {
-      await loadingLocator.waitFor({ state: "hidden", timeout: 10000 });
+  async waitForLoadingToComplete(): Promise<void> {
+    const spinner = this.loadingSpinner;
+    if (await spinner.isVisible()) {
+      await waitForHidden(spinner, 10_000);
     }
+  }
+
+  // Assertion helpers
+  async assertProductsVisible(minCount = 1): Promise<void> {
+    await expect(this.productItems).toHaveCount(minCount);
+  }
+
+  async assertCartBadgeCount(expected: number): Promise<void> {
+    await this.cartBadge.assertCount(expected);
+  }
+
+  async assertEmptyState(): Promise<void> {
+    await expect(this.emptyState).toBeVisible();
+  }
+
+  async assertPageVisible(): Promise<void> {
+    await expect(this.page.getByTestId('product-listing')).toBeVisible();
   }
 }
