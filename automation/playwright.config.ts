@@ -10,14 +10,14 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
-    ["html", { outputFolder: "test-results/reports/html", open: "yes" }],
+    ["html", { outputFolder: "test-results", open: "yes" }],
     ["json", { outputFile: "test-results/results.json" }],
     ["junit", { outputFile: "test-results/junit.xml" }],
     ["list"],
   ],
   use: {
     baseURL: config.uiBaseUrl,
-    headless: true,
+    headless: false,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
