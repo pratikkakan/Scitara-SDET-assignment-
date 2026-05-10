@@ -7,23 +7,23 @@ export class ProductDetailsPage extends BasePage {
 
   // Locators
   get productDetails()    { return this.page.getByTestId('product-details'); }
-  get productTitle()      { return this.page.getByTestId('product-title'); }
-  get productPrice()      { return this.page.getByTestId('product-price'); }
-  get productDescription(){ return this.page.getByTestId('product-description'); }
-  get productCategory()   { return this.page.getByTestId('product-category'); }
-  get productRating()     { return this.page.getByTestId('product-rating'); }
-  get productImage()      { return this.page.getByTestId('product-image'); }
+  get productTitle()      { return this.page.getByTestId('product-detail-name'); }
+  get productPrice()      { return this.page.getByTestId('product-detail-price'); }
+  get productDescription(){ return this.page.getByTestId('product-detail-description'); }
+  get productCategory()   { return this.page.getByTestId('product-detail-category'); }
+  get productRating()     { return this.page.getByTestId('product-detail-rating'); }
+  get productImage()      { return this.page.getByTestId('product-detail-image'); }
   get stockStatus()       { return this.page.getByTestId('stock-status'); }
   get quantityInput()     { return this.page.getByTestId('quantity-input'); }
-  get increaseQtyBtn()    { return this.page.getByTestId('increase-qty-btn'); }
-  get decreaseQtyBtn()    { return this.page.getByTestId('decrease-qty-btn'); }
-  get addToCartBtn()      { return this.page.getByTestId('add-to-cart-btn'); }
+  get increaseQtyBtn()    { return this.page.getByTestId('increase-quantity'); }
+  get decreaseQtyBtn()    { return this.page.getByTestId('decrease-quantity'); }
+  get addToCartBtn()      { return this.page.getByTestId('add-to-cart-button'); }
   get backButton()        { return this.page.getByTestId('back-button'); }
   get relatedProducts()   { return this.page.getByTestId('related-products'); }
 
   // Navigation
   async navigateToProduct(productId: string | number): Promise<void> {
-    await super.navigate(`/products/${productId}`);
+    await super.navigate(`/product/${productId}`);
   }
 
   // Actions

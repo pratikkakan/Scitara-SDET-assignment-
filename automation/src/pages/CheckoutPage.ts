@@ -16,29 +16,29 @@ export interface CheckoutFormData {
 
 export class CheckoutPage extends BasePage {
   // Form field locators
-  get firstNameInput()  { return this.page.getByTestId('first-name-input'); }
-  get lastNameInput()   { return this.page.getByTestId('last-name-input'); }
+  get firstNameInput()  { return this.page.getByTestId('firstName-input'); }
+  get lastNameInput()   { return this.page.getByTestId('lastName-input'); }
   get emailInput()      { return this.page.getByTestId('email-input'); }
   get phoneInput()      { return this.page.getByTestId('phone-input'); }
   get addressInput()    { return this.page.getByTestId('address-input'); }
   get cityInput()       { return this.page.getByTestId('city-input'); }
-  get zipCodeInput()    { return this.page.getByTestId('zip-code-input'); }
-  get cardNumberInput() { return this.page.getByTestId('card-number-input'); }
-  get expiryDateInput() { return this.page.getByTestId('expiry-date-input'); }
+  get zipCodeInput()    { return this.page.getByTestId('zipCode-input'); }
+  get cardNumberInput() { return this.page.getByTestId('cardNumber-input'); }
+  get expiryDateInput() { return this.page.getByTestId('expiryDate-input'); }
   get cvvInput()        { return this.page.getByTestId('cvv-input'); }
-  get submitBtn()       { return this.page.getByTestId('submit-order-btn'); }
-  get backBtn()         { return this.page.getByTestId('back-to-cart-btn'); }
+  get submitBtn()       { return this.page.getByTestId('place-order-button'); }
+  get backBtn()         { return this.page.getByTestId('cancel-button'); }
 
   // Error locators
-  get firstNameError()  { return this.page.getByTestId('first-name-error'); }
-  get lastNameError()   { return this.page.getByTestId('last-name-error'); }
+  get firstNameError()  { return this.page.getByTestId('firstName-error'); }
+  get lastNameError()   { return this.page.getByTestId('lastName-error'); }
   get emailError()      { return this.page.getByTestId('email-error'); }
   get phoneError()      { return this.page.getByTestId('phone-error'); }
   get addressError()    { return this.page.getByTestId('address-error'); }
   get cityError()       { return this.page.getByTestId('city-error'); }
-  get zipCodeError()    { return this.page.getByTestId('zip-code-error'); }
-  get cardNumberError() { return this.page.getByTestId('card-number-error'); }
-  get expiryDateError() { return this.page.getByTestId('expiry-date-error'); }
+  get zipCodeError()    { return this.page.getByTestId('zipCode-error'); }
+  get cardNumberError() { return this.page.getByTestId('cardNumber-error'); }
+  get expiryDateError() { return this.page.getByTestId('expiryDate-error'); }
   get cvvError()        { return this.page.getByTestId('cvv-error'); }
 
   // Confirmation locators
@@ -46,7 +46,7 @@ export class CheckoutPage extends BasePage {
   get orderSuccessTitle() { return this.page.getByTestId('order-success-title'); }
   get orderId()           { return this.page.getByTestId('order-id'); }
   get backHomeButton()    { return this.page.getByTestId('back-home-button'); }
-  get checkoutContainer() { return this.page.getByTestId('checkout-container'); }
+  get checkoutContainer() { return this.page.getByTestId('checkout-page'); }
 
   // Navigation
   async navigate(): Promise<void> {

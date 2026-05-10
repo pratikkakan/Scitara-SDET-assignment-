@@ -4,7 +4,7 @@ export class CartBadgeComponent {
   private readonly badge: Locator;
 
   constructor(page: Page) {
-    this.badge = page.getByTestId('cart-badge');
+    this.badge = page.getByTestId('cart-count');
   }
 
   async getCount(): Promise<number> {
