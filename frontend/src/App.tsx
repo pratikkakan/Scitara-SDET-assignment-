@@ -1,10 +1,19 @@
+import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { io } from "socket.io-client";
 import { CartProvider } from "./context/CartContext";
 import { Header } from "./components";
 import { ProductListing, ProductDetails, Cart, Checkout } from "./pages";
 import "./App.css";
 
+const SOCKET_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:3000").replace(/\/api$/, "");
+
 function App() {
+  useEffect(() => {
+    const socket = io(SOCKET_URL);
+    return () => { socket.disconnect(); };
+  }, []);
+
   return (
     <CartProvider>
       <Router>

@@ -15,6 +15,12 @@ export interface UpdateUserPayload {
   phone?: string;
 }
 
+export interface CreateOrderPayload {
+  userId?: string;
+  items: Array<{ productId: string; quantity: number; price: number }>;
+  total: number;
+}
+
 export class UserApiClient {
   private readonly headers: Record<string, string>;
 
@@ -25,6 +31,8 @@ export class UserApiClient {
   ) {
     this.headers = apiToken ? { Authorization: `Bearer ${apiToken}` } : {};
   }
+
+  // ── User endpoints ────────────────────────────────────────────────────────
 
   createUser(data: Record<string, unknown>) {
     return this.request.post(this.url(Endpoints.users), { data, headers: this.headers });
@@ -52,6 +60,33 @@ export class UserApiClient {
 
   getHealth() {
     return this.request.get(this.baseUrl + '/health');
+  }
+
+  // ── Order endpoints ───────────────────────────────────────────────────────
+
+  createOrder(data: CreateOrderPayload) {
+    return this.request.post(this.url(Endpoints.orders), { data, headers: this.headers });
+  }
+
+  getOrders() {
+    return this.request.get(this.url(Endpoints.orders), { headers: this.headers });
+  }
+
+  getOrderById(id: string) {
+    return this.request.get(this.url(Endpoints.orderById(id)), { headers: this.headers });
+  }
+
+  updateOrderStatus(id: string, status: string) {
+    return this.request.patch(this.url(Endpoints.orderStatus(id)), {
+      data: { status },
+      headers: this.headers,
+    });
+  }
+
+  // ── Debug endpoints ───────────────────────────────────────────────────────
+
+  triggerServerError() {
+    return this.request.get(this.baseUrl + Endpoints.debugTriggerError);
   }
 
   private url(path: string): string {

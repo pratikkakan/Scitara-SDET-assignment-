@@ -775,6 +775,20 @@ test.describe('Users API — Complete Test Suite', () => {
     });
   });
 
+  // ─── HTTP Status Code 500 ─────────────────────────────────────────────────
+
+  test.describe('HTTP 500 — Internal Server Error', () => {
+    test('[Negative] unhandled server error returns 500 + INTERNAL_SERVER_ERROR code', async ({ userApi }) => {
+      await test.step("GET /debug/trigger-error and assert 500 with error schema", async () => {
+        const response = await userApi.triggerServerError();
+        const body = await response.json();
+        expect(response.status()).toBe(500);
+        expect(validateSchema(body, errorResponseSchema)).toBe(true);
+        expect(body.error.code).toBe('INTERNAL_SERVER_ERROR');
+      });
+    });
+  });
+
   // ─── HTTP Status Code Contract Coverage ───────────────────────────────────
 
   test.describe('HTTP Status Code Contract Coverage', () => {

@@ -1,32 +1,60 @@
 /// <reference types="node" />
 import { test, expect } from '@/fixtures/base.fixture';
 import { validUser, testUsers } from '@/testData/api/users/userData';
-import { userSchema } from '@/testData/api/schemas/user.schema';
+import { userSchema, wsUserCreatedEventSchema } from '@/testData/api/schemas/user.schema';
+import { wsOrderStatusChangedEventSchema } from '@/testData/api/schemas/order.schema';
 import { validateSchema } from '@/utils/validators/schemaValidator';
 
 const WS_EVENT_TIMEOUT_MS = 3_000;
 
+/**
+ * Parses a raw WebSocket frame into a plain object.
+ * Handles two wire formats:
+ *   1. Raw JSON (non-Socket.IO)
+ *   2. Socket.IO event frames — "42[\"EVENT_NAME\", {...payload}]"
+ *      where "4" = Engine.IO message and "2" = Socket.IO event sub-type.
+ *      We strip the numeric prefix and extract the payload (index 1 of the array).
+ */
 function parseFrame(payload: string | Buffer): Record<string, unknown> | null {
   try {
     const str = typeof payload === 'string' ? payload : Buffer.from(payload).toString();
-    return JSON.parse(str);
+
+    // Socket.IO event frame: starts with "42["
+    if (str.startsWith('42[')) {
+      const arr = JSON.parse(str.slice(2)); // remove "42" prefix → ["EVENT_NAME", {...}]
+      if (Array.isArray(arr) && arr.length >= 2 && arr[1] !== null && typeof arr[1] === 'object') {
+        return arr[1] as Record<string, unknown>;
+      }
+    }
+
+    // Fallback: raw JSON object frame
+    const parsed = JSON.parse(str);
+    if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+
+    return null;
   } catch {
     return null;
   }
 }
 
 function isUserCreatedEvent(msg: Record<string, unknown>): boolean {
-  return msg['event'] === 'userCreated' || msg['type'] === 'USER_CREATED';
+  return msg['type'] === 'USER_CREATED';
+}
+
+function isOrderStatusChangedEvent(msg: Record<string, unknown>): boolean {
+  return msg['type'] === 'ORDER_STATUS_CHANGED';
 }
 
 test.describe('WebSocket — User Events', () => {
-  let createdIds: string[] = [];
+  let createdUserIds: string[] = [];
 
   test.afterEach(async ({ userApi }) => {
-    for (const id of createdIds) {
+    for (const id of createdUserIds) {
       await userApi.deleteUser(id).catch(() => {});
     }
-    createdIds = [];
+    createdUserIds = [];
   });
 
   // ─── Connection ────────────────────────────────────────────────────────────
@@ -65,7 +93,7 @@ test.describe('WebSocket — User Events', () => {
 
       await test.step("Create a user via API while WebSocket is open", async () => {
         const created = await (await userApi.createUser(validUser)).json();
-        createdIds.push(created.id);
+        createdUserIds.push(created.id);
         await page.waitForTimeout(500);
       });
 
@@ -102,7 +130,7 @@ test.describe('WebSocket — User Events', () => {
 
   test.describe('User Created Events', () => {
     test('[Positive] userCreated event received after POST /users', async ({ browser, userApi }) => {
-      const { page, context, eventReceived } = await test.step("Open page and register userCreated event listener", async () => {
+      const { context, eventReceived } = await test.step("Open page and register USER_CREATED event listener", async () => {
         const context = await browser.newContext();
         const page = await context.newPage();
 
@@ -120,12 +148,12 @@ test.describe('WebSocket — User Events', () => {
         return { page, context, eventReceived };
       });
 
-      await test.step("POST /users to trigger userCreated event", async () => {
+      await test.step("POST /users to trigger USER_CREATED event", async () => {
         const created = await (await userApi.createUser(validUser)).json();
-        createdIds.push(created.id);
+        createdUserIds.push(created.id);
       });
 
-      await test.step("Assert userCreated event was received within timeout", async () => {
+      await test.step("Assert USER_CREATED event was received within timeout", async () => {
         const received = await Promise.race([
           eventReceived,
           new Promise<boolean>((r) => setTimeout(() => r(false), WS_EVENT_TIMEOUT_MS)),
@@ -135,8 +163,8 @@ test.describe('WebSocket — User Events', () => {
       });
     });
 
-    test('[Positive] userCreated event payload contains valid user data', async ({ browser, userApi }) => {
-      const { context, capturedPayloads, eventReceived } = await test.step("Open page and capture userCreated event payload", async () => {
+    test('[Positive] userCreated event payload passes full wsUserCreatedEventSchema', async ({ browser, userApi }) => {
+      const { context, capturedPayloads, eventReceived } = await test.step("Open page and capture USER_CREATED event payload", async () => {
         const context = await browser.newContext();
         const page = await context.newPage();
         const capturedPayloads: Record<string, unknown>[] = [];
@@ -158,24 +186,63 @@ test.describe('WebSocket — User Events', () => {
         return { context, capturedPayloads, eventReceived };
       });
 
-      await test.step("POST /users to trigger userCreated event", async () => {
+      await test.step("POST /users to trigger USER_CREATED event", async () => {
         const created = await (await userApi.createUser(validUser)).json();
-        createdIds.push(created.id);
+        createdUserIds.push(created.id);
         await Promise.race([
           eventReceived,
           new Promise<void>((r) => setTimeout(r, WS_EVENT_TIMEOUT_MS)),
         ]);
       });
 
-      await test.step("Assert captured payload contains user id and email", async () => {
-        if (capturedPayloads.length > 0) {
-          const payload = capturedPayloads[0];
-          const userData = (payload['data'] ?? payload['user']) as Record<string, unknown> | undefined;
-          if (userData) {
-            expect(userData).toHaveProperty('id');
-            expect(userData).toHaveProperty('email');
-          }
-        }
+      await test.step("Assert captured payload passes wsUserCreatedEventSchema", async () => {
+        expect(capturedPayloads.length).toBeGreaterThan(0);
+        const payload = capturedPayloads[0];
+        expect(validateSchema(payload, wsUserCreatedEventSchema)).toBe(true);
+        await context.close();
+      });
+    });
+
+    test('[Positive] userCreated payload contains correct user id and email', async ({ browser, userApi }) => {
+      const { context, capturedPayloads, eventReceived } = await test.step("Open page and capture USER_CREATED event payload", async () => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        const capturedPayloads: Record<string, unknown>[] = [];
+
+        const eventReceived = new Promise<void>((resolve) => {
+          page.on('websocket', (ws) => {
+            ws.on('framereceived', (frame) => {
+              const msg = parseFrame(frame.payload as string | Buffer);
+              if (msg && isUserCreatedEvent(msg)) {
+                capturedPayloads.push(msg);
+                resolve();
+              }
+            });
+          });
+        });
+
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        return { context, capturedPayloads, eventReceived };
+      });
+
+      let createdUser: Record<string, unknown>;
+      await test.step("POST /users and capture created user data", async () => {
+        createdUser = await (await userApi.createUser(validUser)).json();
+        createdUserIds.push(createdUser.id as string);
+        await Promise.race([
+          eventReceived,
+          new Promise<void>((r) => setTimeout(r, WS_EVENT_TIMEOUT_MS)),
+        ]);
+      });
+
+      await test.step("Assert payload user matches the created user", async () => {
+        expect(capturedPayloads.length).toBeGreaterThan(0);
+        const data = capturedPayloads[0]['data'] as Record<string, unknown>;
+        const user = data['user'] as Record<string, unknown>;
+        expect(user['id']).toBe(createdUser!['id']);
+        expect(user['email']).toBe(createdUser!['email']);
+        expect(validateSchema(user, userSchema)).toBe(true);
         await context.close();
       });
     });
@@ -202,16 +269,143 @@ test.describe('WebSocket — User Events', () => {
         for (const res of responses) {
           expect(res.status()).toBe(201);
           const body = await res.json();
-          createdIds.push(body.id);
+          createdUserIds.push(body.id);
           expect(validateSchema(body, userSchema)).toBe(true);
         }
       });
 
       await test.step("Assert WebSocket connection is still active after parallel requests", async () => {
         await page.waitForTimeout(500);
-        const connections: string[] = [];
-        page.on('websocket', (ws) => connections.push(ws.url()));
         expect(page).toBeTruthy();
+        await context.close();
+      });
+    });
+  });
+
+  // ─── Order Status Changed Events ───────────────────────────────────────────
+
+  test.describe('Order Status Changed Events', () => {
+    const orderPayload = {
+      items: [{ productId: 'prod-1', quantity: 2, price: 49.99 }],
+      total: 99.98,
+    };
+
+    test('[Positive] ORDER_STATUS_CHANGED event received after PATCH /orders/:id/status', async ({ browser, userApi }) => {
+      const { context, eventReceived } = await test.step("Open page and register ORDER_STATUS_CHANGED listener", async () => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+
+        const eventReceived = new Promise<boolean>((resolve) => {
+          page.on('websocket', (ws) => {
+            ws.on('framereceived', (frame) => {
+              const msg = parseFrame(frame.payload as string | Buffer);
+              if (msg && isOrderStatusChangedEvent(msg)) resolve(true);
+            });
+          });
+        });
+
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        return { page, context, eventReceived };
+      });
+
+      await test.step("Create an order then update its status to confirmed", async () => {
+        const order = await (await userApi.createOrder(orderPayload)).json();
+        expect(order.id).toBeTruthy();
+        await userApi.updateOrderStatus(order.id, 'confirmed');
+      });
+
+      await test.step("Assert ORDER_STATUS_CHANGED event was received within timeout", async () => {
+        const received = await Promise.race([
+          eventReceived,
+          new Promise<boolean>((r) => setTimeout(() => r(false), WS_EVENT_TIMEOUT_MS)),
+        ]);
+        expect(received).toBe(true);
+        await context.close();
+      });
+    });
+
+    test('[Positive] ORDER_STATUS_CHANGED payload passes full schema validation', async ({ browser, userApi }) => {
+      const { context, capturedPayloads, eventReceived } = await test.step("Open page and capture ORDER_STATUS_CHANGED payload", async () => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        const capturedPayloads: Record<string, unknown>[] = [];
+
+        const eventReceived = new Promise<void>((resolve) => {
+          page.on('websocket', (ws) => {
+            ws.on('framereceived', (frame) => {
+              const msg = parseFrame(frame.payload as string | Buffer);
+              if (msg && isOrderStatusChangedEvent(msg)) {
+                capturedPayloads.push(msg);
+                resolve();
+              }
+            });
+          });
+        });
+
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        return { context, capturedPayloads, eventReceived };
+      });
+
+      await test.step("Create order and update status to trigger event", async () => {
+        const order = await (await userApi.createOrder(orderPayload)).json();
+        await userApi.updateOrderStatus(order.id, 'shipped');
+        await Promise.race([
+          eventReceived,
+          new Promise<void>((r) => setTimeout(r, WS_EVENT_TIMEOUT_MS)),
+        ]);
+      });
+
+      await test.step("Assert payload passes wsOrderStatusChangedEventSchema", async () => {
+        expect(capturedPayloads.length).toBeGreaterThan(0);
+        const payload = capturedPayloads[0];
+        expect(validateSchema(payload, wsOrderStatusChangedEventSchema)).toBe(true);
+        await context.close();
+      });
+    });
+
+    test('[Positive] ORDER_STATUS_CHANGED payload contains correct order ID and previousStatus', async ({ browser, userApi }) => {
+      const { context, capturedPayloads, eventReceived } = await test.step("Open page and capture ORDER_STATUS_CHANGED payload", async () => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        const capturedPayloads: Record<string, unknown>[] = [];
+
+        const eventReceived = new Promise<void>((resolve) => {
+          page.on('websocket', (ws) => {
+            ws.on('framereceived', (frame) => {
+              const msg = parseFrame(frame.payload as string | Buffer);
+              if (msg && isOrderStatusChangedEvent(msg)) {
+                capturedPayloads.push(msg);
+                resolve();
+              }
+            });
+          });
+        });
+
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        return { context, capturedPayloads, eventReceived };
+      });
+
+      let orderId: string;
+      await test.step("Create order (status=pending) then update to confirmed", async () => {
+        const order = await (await userApi.createOrder(orderPayload)).json();
+        orderId = order.id;
+        await userApi.updateOrderStatus(orderId, 'confirmed');
+        await Promise.race([
+          eventReceived,
+          new Promise<void>((r) => setTimeout(r, WS_EVENT_TIMEOUT_MS)),
+        ]);
+      });
+
+      await test.step("Assert payload has correct order ID and previousStatus=pending", async () => {
+        expect(capturedPayloads.length).toBeGreaterThan(0);
+        const data = capturedPayloads[0]['data'] as Record<string, unknown>;
+        const order = data['order'] as Record<string, unknown>;
+        expect(order['id']).toBe(orderId!);
+        expect(order['status']).toBe('confirmed');
+        expect(data['previousStatus']).toBe('pending');
         await context.close();
       });
     });
@@ -237,7 +431,7 @@ test.describe('WebSocket — User Events', () => {
         await page.waitForTimeout(500);
 
         const created = await (await userApi.createUser(validUser)).json();
-        createdIds.push(created.id);
+        createdUserIds.push(created.id);
         await page.waitForTimeout(2_000);
 
         return { context, messages };
