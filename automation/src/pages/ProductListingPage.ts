@@ -67,7 +67,7 @@ export class ProductListingPage extends BasePage {
   }
 
   async filterByCategory(category: string): Promise<void> {
-    await this.categoryFilter.selectOption(category);
+    await this.page.getByTestId(`category-${category}`).click();
     await waitForNetworkIdle(this.page);
   }
 
@@ -86,6 +86,10 @@ export class ProductListingPage extends BasePage {
 
   async getFirstProductPrice(): Promise<string | null> {
     return this.productItems.first().locator('[data-testid^="product-price-"]').textContent();
+  }
+
+  async getFirstProductCategory(): Promise<string | null> {
+    return this.productItems.first().locator('[data-testid^="product-category-"]').textContent();
   }
 
   async getProductNameById(productId: string): Promise<string | null> {

@@ -27,6 +27,13 @@ test.describe('Product Listing — Browse & Search', () => {
         expect(price).toBeTruthy();
       });
     });
+
+    test('[Positive] first product displays a category label', async ({ pom }) => {
+      await test.step("Assert first product card shows a non-empty category", async () => {
+        const category = await pom.productListingPage.getFirstProductCategory();
+        expect(category).toBeTruthy();
+      });
+    });
   });
 
   // ─── Add to Cart ───────────────────────────────────────────────────────────
@@ -113,14 +120,29 @@ test.describe('Product Listing — Browse & Search', () => {
 
   test.describe('Category Filter', () => {
     test('[Positive] filtering by category returns relevant products', async ({ pom }) => {
-      await test.step("Apply Electronics category filter and verify results", async () => {
-        try {
-          await pom.productListingPage.filterByCategory('Electronics');
-          const count = await pom.productListingPage.getProductCount();
-          expect(count).toBeGreaterThanOrEqual(0);
-        } catch {
-          test.skip();
-        }
+      await test.step("Apply Electronics category filter", async () => {
+        await pom.productListingPage.filterByCategory('Electronics');
+      });
+
+      await test.step("Verify filtered results are returned", async () => {
+        const count = await pom.productListingPage.getProductCount();
+        expect(count).toBeGreaterThan(0);
+      });
+    });
+
+    test('[Positive] filtering resets to all products when All is selected', async ({ pom }) => {
+      const totalBefore = await test.step("Capture total product count", async () => {
+        return await pom.productListingPage.getProductCount();
+      });
+
+      await test.step("Apply a category filter then switch back to All", async () => {
+        await pom.productListingPage.filterByCategory('Electronics');
+        await pom.productListingPage.filterByCategory('All');
+      });
+
+      await test.step("Verify all products are shown again", async () => {
+        const totalAfter = await pom.productListingPage.getProductCount();
+        expect(totalAfter).toBe(totalBefore);
       });
     });
   });
