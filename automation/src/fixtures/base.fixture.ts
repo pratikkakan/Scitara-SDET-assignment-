@@ -13,7 +13,7 @@ export const test = base.extend<TestFixtures>({
     await use(new PageObjectManager(page));
   },
   userApi: async ({ request }, use) => {
-    await use(new UserApiClient(request, config.apiBaseUrl));
+    await use(new UserApiClient(request, config.apiBaseUrl, config.apiToken));
   },
 });
 

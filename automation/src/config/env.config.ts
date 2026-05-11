@@ -4,6 +4,7 @@ interface EnvConfig {
   apiBaseUrl: string;
   uiBaseUrl: string;
   wsUrl: string;
+  apiToken?: string;
 }
 
 const envConfigs: Record<Env, EnvConfig> = {
@@ -26,5 +27,8 @@ const envConfigs: Record<Env, EnvConfig> = {
 
 const currentEnv = (process.env.TEST_ENV as Env) ?? 'local';
 
-export const config: EnvConfig = envConfigs[currentEnv];
+export const config: EnvConfig = {
+  ...envConfigs[currentEnv],
+  apiToken: process.env.API_TOKEN,
+};
 export const apiHeaders = { 'Content-Type': 'application/json' };

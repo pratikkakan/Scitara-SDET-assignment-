@@ -16,29 +16,34 @@ export interface UpdateUserPayload {
 }
 
 export class UserApiClient {
+  private readonly headers: Record<string, string>;
+
   constructor(
     private readonly request: APIRequestContext,
     private readonly baseUrl: string,
-  ) {}
+    apiToken?: string,
+  ) {
+    this.headers = apiToken ? { Authorization: `Bearer ${apiToken}` } : {};
+  }
 
   createUser(data: Record<string, unknown>) {
-    return this.request.post(this.url(Endpoints.users), { data });
+    return this.request.post(this.url(Endpoints.users), { data, headers: this.headers });
   }
 
   getUsers() {
-    return this.request.get(this.url(Endpoints.users));
+    return this.request.get(this.url(Endpoints.users), { headers: this.headers });
   }
 
   getUserById(id: string) {
-    return this.request.get(this.url(Endpoints.userById(id)));
+    return this.request.get(this.url(Endpoints.userById(id)), { headers: this.headers });
   }
 
   updateUser(id: string, data: Record<string, unknown>) {
-    return this.request.put(this.url(Endpoints.userById(id)), { data });
+    return this.request.put(this.url(Endpoints.userById(id)), { data, headers: this.headers });
   }
 
   deleteUser(id: string) {
-    return this.request.delete(this.url(Endpoints.userById(id)));
+    return this.request.delete(this.url(Endpoints.userById(id)), { headers: this.headers });
   }
 
   getRoot() {

@@ -3,6 +3,7 @@ import express from "express";
 import usersRouter from "./routes/users.routes";
 import { errorHandler } from "./middleware/errorHandler";
 import { notFoundHandler } from "./middleware/notFoundHandler";
+import { authMiddleware } from "./middleware/authMiddleware";
 
 const app = express();
 
@@ -30,8 +31,8 @@ app.get("/health", (_req, res) => {
   });
 });
 
-app.use("/users", usersRouter);
-app.use("/api/users", usersRouter);
+app.use("/users", authMiddleware, usersRouter);
+app.use("/api/users", authMiddleware, usersRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
