@@ -1,12 +1,12 @@
-# Backend - User Management REST API
+# Backend — User Management REST API
 
 ## Overview
-The backend is a Node.js Express application built with TypeScript that provides a REST API for user management. It includes WebSocket support for real-time communication and follows a layered architecture with controllers, services, validators, and middleware.
+Node.js/Express/TypeScript REST API providing CRUD operations for user management. In-memory data store, Zod validation, Socket.IO for real-time events, and centralised error handling.
 
 ## Technology Stack
-- **Runtime:** Node.js with TypeScript
+- **Runtime:** Node.js ≥ 18 with TypeScript
 - **Framework:** Express.js 4.18.2
-- **Validation:** Zod for schema validation
+- **Validation:** Zod
 - **Real-time:** Socket.IO 4.8.1
 - **Utilities:** UUID, CORS, dotenv
 
@@ -14,124 +14,121 @@ The backend is a Node.js Express application built with TypeScript that provides
 ```
 backend/
 ├── src/
-│   ├── app.ts                 # Express app configuration
-│   ├── index.ts               # Server entry point
-│   ├── config/                # Configuration files
-│   ├── controllers/           # Request handlers
-│   ├── routes/                # API route definitions
-│   ├── services/              # Business logic
-│   ├── middleware/            # Express middleware
-│   ├── validators/            # Input validation schemas
-│   ├── types/                 # TypeScript type definitions
-│   ├── data/                  # Data storage/models
-│   ├── utils/                 # Utility functions
-│   └── websocket/             # Socket.IO event handlers
-├── dist/                      # Compiled JavaScript output
-├── package.json               # Dependencies and scripts
-├── tsconfig.json              # TypeScript configuration
-├── Dockerfile                 # Docker configuration
-└── .env.example               # Environment variables template
+│   ├── app.ts                     # Express app setup, routes, middleware wiring
+│   ├── index.ts                   # Server entry point (port binding)
+│   ├── controllers/
+│   │   └── user.controller.ts     # Request handlers for all user endpoints
+│   ├── routes/
+│   │   └── users.routes.ts        # Route definitions (mounted at /users and /api/users)
+│   ├── services/
+│   │   └── user.service.ts        # Business logic and data operations
+│   ├── middleware/
+│   │   ├── asyncHandler.ts        # Wraps async controllers for error propagation
+│   │   ├── authMiddleware.ts      # Bearer token authentication guard
+│   │   ├── errorHandler.ts        # Centralised error response formatting
+│   │   ├── notFoundHandler.ts     # 404 catch-all handler
+│   │   └── validateRequest.ts     # Zod schema validation (body / params)
+│   ├── validators/
+│   │   └── user.validator.ts      # createUserSchema, updateUserSchema, userIdParamSchema
+│   ├── data/
+│   │   ├── userStore.ts           # In-memory user store with CRUD helpers
+│   │   └── users.json             # Seed data loaded on startup
+│   ├── types/
+│   │   ├── user.types.ts          # User interface definitions
+│   │   └── api.types.ts           # Generic API response types
+│   ├── utils/
+│   │   ├── appError.ts            # Custom AppError class with status codes
+│   │   └── responseHandlers.ts    # Typed response helpers (sendCreated, sendOk, etc.)
+│   └── websocket/
+│       ├── socketServer.ts        # Socket.IO server initialisation
+│       ├── userEvents.ts          # Handlers that emit user CRUD events
+│       ├── events.ts              # Event name constants
+│       └── eventEmitter.ts        # Internal event bus
+├── package.json
+├── tsconfig.json
+├── Dockerfile
+└── .env.example
 ```
 
 ## API Endpoints
 
-### Core Endpoints
-- `GET /` - API information and available endpoints
-- `GET /health` - Health check endpoint (returns status and timestamp)
+| Method | Path | Description | Response |
+|--------|------|-------------|----------|
+| GET | `/` | API info (name, version, available endpoints) | 200 |
+| GET | `/health` | Health check `{ status: "ok", timestamp }` | 200 |
+| GET | `/users` | List all users | 200 |
+| GET | `/users/:id` | Get user by UUID | 200 / 400 / 404 |
+| POST | `/users` | Create user | 201 / 400 / 409 |
+| PUT | `/users/:id` | Update user (any subset of fields) | 200 / 400 / 404 / 409 |
+| DELETE | `/users/:id` | Delete user | 204 / 400 / 404 |
+| * | `/api/users[/:id]` | Alias for `/users[/:id]` — same behaviour | — |
 
-### User Management Endpoints
-- `GET /users` - List all users
-- `GET /users/:id` - Get user by ID
-- `POST /users` - Create new user
-- `PATCH /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
-- `GET /api/users` - Alternative users endpoint (same as /users)
+> **Auth:** `/users` and `/api/users` routes require a `Authorization: Bearer <token>` header when `API_TOKEN` is set. `GET /` and `GET /health` are always public.
 
-### WebSocket Support
-- Socket.IO available at `/socket.io`
-- Real-time event-driven communication
+## Request / Response Contracts
 
-## Key Features
-- **RESTful API Design** - Standard REST endpoints for CRUD operations
-- **Input Validation** - Zod schemas for request validation
-- **Error Handling** - Centralized error handler middleware
-- **CORS Support** - Cross-origin resource sharing enabled
-- **WebSocket Integration** - Real-time communication via Socket.IO
-- **TypeScript** - Full type safety across codebase
-- **Request Middleware** - Validation and async error handling
+### Create User — `POST /users`
+```json
+// Request (required: firstName, lastName, email | optional: phone)
+{ "firstName": "Jane", "lastName": "Doe", "email": "jane@example.com", "phone": "+1234567890" }
 
-## Architecture Layers
-1. **Routes** - Define API endpoints
-2. **Controllers** - Handle incoming requests
-3. **Services** - Business logic and data operations
-4. **Validators** - Input validation using Zod schemas
-5. **Middleware** - Request/response handling (error, validation, 404)
-6. **WebSocket** - Event-driven real-time communication
+// 201 Created
+{ "id": "<uuid>", "firstName": "Jane", "lastName": "Doe", "email": "jane@example.com",
+  "createdAt": "<ISO8601>", "updatedAt": "<ISO8601>" }
+```
+
+### Error format
+```json
+{ "error": { "code": "EMAIL_ALREADY_EXISTS", "message": "A user with that email already exists." } }
+```
+Error codes: `VALIDATION_ERROR` · `INVALID_ID` · `USER_NOT_FOUND` · `EMAIL_ALREADY_EXISTS`
+
+## HTTP Status Codes
+| Code | When |
+|------|------|
+| 200 | Successful GET or PUT |
+| 201 | User created (POST) |
+| 204 | User deleted (no body) |
+| 400 | Validation error or malformed UUID |
+| 404 | User not found |
+| 409 | Duplicate email on POST or PUT |
+| 500 | Unhandled server error |
 
 ## Getting Started
 
-### Installation
+### Install & Run (Development)
 ```bash
 cd backend
 npm install
-```
-
-### Development
-```bash
-npm run dev          # Run with hot reload (uses tsx watch)
-npm run lint         # Check code quality
-npm run lint:fix     # Fix linting issues
-npm run type-check   # TypeScript type checking
+npm run dev          # Hot-reload via tsx watch
 ```
 
 ### Production
 ```bash
-npm run build        # Compile TypeScript to JavaScript
-npm start            # Start compiled server
+npm run build        # Compile TypeScript → dist/
+npm start            # Run compiled output
 ```
 
-### Environment Setup
-Copy `.env.example` to `.env` and configure:
-- `PORT` - Server port
-- `NODE_ENV` - Environment (development/production)
-- Other service configurations as needed
+### Environment Variables
+Copy `.env.example` to `.env`:
+```
+PORT=3000
+NODE_ENV=development
+API_TOKEN=your-secret-token    # Omit or leave empty to disable auth
+```
 
-## Development Scripts
-- `npm run dev` - Start development server with auto-reload
-- `npm run build` - Compile TypeScript
-- `npm run start` - Run compiled application
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix linting errors automatically
-- `npm run type-check` - Verify TypeScript types
-
-## Docker
-A Dockerfile is included for containerization:
+### Docker
 ```bash
 docker build -t backend .
-docker run -p 3000:3000 backend
+docker run -p 3000:3000 --env-file .env backend
 ```
 
-## Dependencies
-- **cors** ^2.8.5 - Cross-origin resource sharing
-- **dotenv** ^16.3.1 - Environment variables
-- **express** ^4.18.2 - Web framework
-- **socket.io** ^4.8.1 - WebSocket communication
-- **uuid** ^9.0.1 - UUID generation
-- **zod** ^3.25.76 - Schema validation
-
-## Response Format
-All API responses follow a consistent JSON format with appropriate HTTP status codes:
-- `200 OK` - Successful GET, PATCH
-- `201 Created` - Successful POST
-- `204 No Content` - Successful DELETE
-- `400 Bad Request` - Validation errors
-- `404 Not Found` - Resource not found
-- `500 Internal Server Error` - Server errors
-
-## Error Handling
-The backend includes centralized error handling middleware that:
-- Catches validation errors from Zod
-- Handles application errors
-- Returns consistent error responses
-- Logs errors appropriately
-- Handles 404 Not Found routes
+## Scripts
+| Script | Purpose |
+|--------|---------|
+| `npm run dev` | Start with auto-reload |
+| `npm run build` | Compile TypeScript |
+| `npm start` | Run compiled server |
+| `npm run lint` | ESLint check |
+| `npm run lint:fix` | Auto-fix lint errors |
+| `npm run type-check` | TypeScript type validation |

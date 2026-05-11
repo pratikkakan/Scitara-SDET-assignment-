@@ -1,617 +1,177 @@
-# E2E Test Suite - Comprehensive Documentation
+# Test Coverage Summary
 
-## 📋 Overview
+## Total Test Count
 
-This comprehensive test suite covers **100% of API endpoints** and **complete e-commerce UI workflows** with:
-
-- ✅ **Positive scenarios** - Success paths and valid data
-- ❌ **Negative scenarios** - Error handling and validation
-- 📊 **Contract testing** - Request/Response schema validation (AJV)
-- 🔄 **Data-driven tests** - Multiple test data scenarios
-- ♿ **Accessibility tests** - WCAG compliance basics
-- 🛡️ **Edge cases** - Special characters, limits, race conditions
-
----
-
-## 📁 Test File Structure
-
-```
-automation/tests/
-├── api/
-│   ├── users.spec.ts                    # Basic API template (reference)
-│   ├── usersComprehensive.spec.ts       # 🟢 COMPLETE API CRUD Coverage
-│   └── apiContractTesting.spec.ts       # 🟢 CONTRACT TESTING (NEW)
-├── ui/
-│   ├── productListing.spec.ts           # Basic UI template (reference)
-│   ├── eCommerceComprehensive.spec.ts   # 🟢 COMPLETE E-COMMERCE FLOW
-│   ├── checkoutComprehensive.spec.ts    # 🟢 CART & CHECKOUT (NEW)
-│   └── productDetailsComprehensive.spec # 🟢 PRODUCT DETAILS (NEW)
-└── websocket/
-    ├── websocket.spec.ts                # Basic WS template (reference)
-    └── websocketComprehensive.spec.ts   # 🟢 WEBSOCKET EVENTS
-```
+| Suite | File | Tests |
+|-------|------|-------|
+| API | `tests/api/users.api.spec.ts` | ~64 |
+| UI — E2E | `tests/ui/complete-purchase.e2e.spec.ts` | ~3 |
+| UI — Product Listing | `tests/ui/pageWiseTests/product-listing.spec.ts` | ~9 |
+| UI — Product Details | `tests/ui/pageWiseTests/product-details.spec.ts` | ~14 |
+| UI — Cart | `tests/ui/pageWiseTests/cart.spec.ts` | ~11 |
+| UI — Checkout | `tests/ui/pageWiseTests/checkout.spec.ts` | ~11 |
+| WebSocket | `tests/websocket/users.websocket.spec.ts` | ~8 |
+| **Total** | | **~120** |
 
 ---
 
-## 🎯 Test Coverage Summary
+## API Test Coverage (`users.api.spec.ts`)
 
-### ✅ API Testing (3 Files - 100+ Tests)
+### Endpoint Health & Discovery
+- GET `/` returns 200 with API name, version, endpoints object
+- GET `/health` returns 200 with `{ status: "ok", timestamp }`
 
-#### **1. usersComprehensive.spec.ts** - CRUD Operations
+### POST /users — Create User
+- [Positive] All valid fields → 201, response matches `userSchema`
+- [Positive] Only required fields → 201, `phone` absent in response
+- [Negative] Missing `firstName` → 400 + `errorResponseSchema`
+- [Negative] Missing `lastName` → 400 + `errorResponseSchema`
+- [Negative] Missing `email` → 400 + `errorResponseSchema`
+- [Negative] Invalid email format → 400
+- [Negative] Invalid phone format → 400
+- [Negative] `firstName` exceeds max length → 400
+- [Negative] Duplicate email → 409, `error.code === "EMAIL_ALREADY_EXISTS"`
+- [Data-driven] All 5 `testUsers` created successfully → 201 each
 
-```
-✓ Create User (POST /api/users)
-  • Positive: Valid data, minimal fields, all fields, multiple users
-  • Negative: Invalid email, missing fields, exceeding max length
-  • Schema: Validates response matches userSchema
+### GET /users — Retrieve All Users
+- [Positive] Returns 200 with array matching `usersListSchema`
+- [Positive] Created user appears in list
+- [Positive] Every user object has required fields (id, firstName, lastName, email, createdAt, updatedAt)
+- [Contract] 200 OK status
+- [Contract] Response matches `usersListSchema`
+- [Contract] Content-Type: application/json header
 
-✓ Read Users (GET /api/users)
-  • Positive: Retrieve all, empty list, verify fields
-  • Schema: Validates usersListSchema
+### GET /users/:id — Retrieve User by ID
+- [Positive] Returns 200 with matching user data, valid schema
+- [Negative] Valid UUID but absent → 404 + `errorResponseSchema`
+- [Negative] Malformed ID (`invalid@id#123`) → 400
+- [Negative] Non-UUID string → 400
+- [Data-driven] First 3 `testUsers` each retrievable by ID → 200
+- [Contract] Existing → 200 OK
+- [Contract] Non-existent → 404 Not Found
+- [Contract] Response matches `userSchema`
 
-✓ Read User by ID (GET /api/users/{id})
-  • Positive: Valid ID, all fields present
-  • Negative: Non-existent user, invalid UUID
+### PUT /users/:id — Update User
+- [Positive] Full update → 200, updated fields reflected, valid schema
+- [Positive] Partial update → unchanged fields preserved
+- [Negative] Invalid email in payload → 400
+- [Negative] Empty payload `{}` → 400
+- [Negative] Valid UUID but absent → 404
+- [Negative] Malformed ID → 400
+- [Negative] Email already used by another user → 409, `error.code === "EMAIL_ALREADY_EXISTS"`
+- [Data-driven] 2 users updated with unique emails → 200 each
+- [Contract] Existing → 200 OK
+- [Contract] Non-existent → 404 Not Found
+- [Contract] Response matches `userSchema`
 
-✓ Update User (PUT /api/users/{id})
-  • Positive: Single field, multiple fields, timestamp update
-  • Negative: Empty payload, invalid data
-  • Schema: Validates updateUserPayloadSchema
+### DELETE /users/:id
+- [Positive] 204 on deletion, subsequent GET returns 404
+- [Negative] Valid UUID but absent → 404 + `errorResponseSchema`
+- [Negative] Malformed ID → 400
+- [Idempotency] First delete → 204, second delete → 404
+- [Data-driven] 3 users deleted and verified 404 after each
+- [Contract] Existing → 204 No Content
+- [Contract] Non-existent → 404 Not Found
 
-✓ Delete User (DELETE /api/users/{id})
-  • Positive: Successful deletion, verification
-  • Negative: Non-existent user
+### Request Payload Contracts
+- `validUser` satisfies `createUserPayloadSchema`, POST returns 201
+- Minimal payload satisfies `createUserPayloadSchema`, POST returns 201
+- Partial payload (firstName only) fails `createUserPayloadSchema`
+- Invalid email payload fails `createUserPayloadSchema`
+- Full update payload satisfies `updateUserPayloadSchema`
 
-✓ Data-Driven Tests
-  • Multiple users from testUsers fixture
-  • Validates all records match schema
-```
+### Response Body Contracts
+- POST response matches `userSchema`
+- Error response matches `errorResponseSchema`
+- No sensitive fields exposed (no `password`, `passwordHash`, `secret`)
+- `createdAt` and `updatedAt` are valid ISO 8601 strings
+- `id` is a non-empty string
 
-#### **2. apiContractTesting.spec.ts** - Contract Validation (NEW)
+### Response Header Contracts
+- POST, GET, PUT responses all include `Content-Type: application/json`
 
-```
-✓ Request Validation Contracts
-  • POST payload validates createUserPayloadSchema
-  • PUT payload validates updateUserPayloadSchema
-  • Rejects extra fields (additionalProperties: false)
-  • Enforces required fields
+### Idempotency & Data Integrity
+- Repeated GET /users/:id returns identical data
+- Two POSTs with unique emails create separate records (distinct IDs and emails)
+- All `testUsers` create unique IDs
 
-✓ Response Schema Contracts
-  • All responses match userSchema structure
-  • Correct field types (string, uuid, date-time)
-  • ISO 8601 timestamp validation
-  • No sensitive data in responses
-
-✓ HTTP Status Code Contracts
-  • 201 Created on POST
-  • 200 OK on GET/PUT
-  • 204 No Content on DELETE
-  • 400 Bad Request on invalid data
-  • 404 Not Found on missing resource
-
-✓ Error Response Format
-  • Consistent error response schema
-  • Message and status fields
-  • Helpful error messages
-
-✓ Response Headers
-  • Content-Type: application/json
-  • Location header on resource creation
-  • CORS headers when configured
-
-✓ Idempotency Testing
-  • Repeated GETs return same data
-  • Multiple POSTs create unique records
-  • Data integrity preserved across operations
-```
-
----
-
-### ✅ UI Testing (4 Files - 150+ Tests)
-
-#### **1. eCommerceComprehensive.spec.ts** - Complete User Workflows
-
-```
-✓ Product Listing Page
-  • Display all products with name and price
-  • Add single/multiple products to cart
-  • Cart badge updates correctly
-  • Search products by keyword
-  • Filter by category
-  • Navigate to product details
-
-✓ Product Details Page
-  • Display product info (name, price, description)
-  • Add to cart with quantity
-  • Increase/decrease quantity
-  • Back button navigation
-  • Related products navigation
-
-✓ Cart Page
-  • Display cart items
-  • Update item quantities
-  • Remove items
-  • Price calculations (subtotal, tax, shipping)
-  • Continue shopping
-  • Proceed to checkout
-
-✓ Checkout Flow
-  • Fill checkout form with all data
-  • Submit order
-  • Display order confirmation
-```
-
-#### **2. checkoutComprehensive.spec.ts** - Cart & Checkout (NEW)
-
-```
-✓ Cart Management
-  • Empty cart display
-  • Add single/multiple products
-  • Remove single item
-  • Remove all items
-  • Update product quantity
-  • Persist cart after refresh
-
-✓ Price Calculations
-  • Display price summary (subtotal, tax, shipping, total)
-  • Calculate correct total
-  • Update price when quantity changes
-
-✓ Checkout Form - Positive
-  • Complete checkout with valid data
-  • Fill form individually
-  • Display order confirmation
-  • Return confirmation ID
-
-✓ Checkout Form - Negative (Validation)
-  • Reject invalid email format
-  • Require firstName, lastName, email
-  • Reject invalid phone format
-  • Reject invalid zip code
-  • Show specific field errors
-
-✓ Edge Cases
-  • Cannot checkout with empty cart
-  • Handle special characters (João, Müller)
-  • Go back to cart from checkout
-  • Persist cart data when returning
-  • Continue shopping button
-```
-
-#### **3. productDetailsComprehensive.spec.ts** - Product Details (NEW)
-
-```
-✓ Product Information
-  • Display name, price, description
-  • Display category
-  • Display stock status
-  • Display rating (if available)
-
-✓ Product Image
-  • Display main image
-  • Valid image source
-  • Alt text for accessibility
-  • Image zoom (if available)
-  • Multiple images support
-
-✓ Quantity Management
-  • Display quantity selector
-  • Default quantity of 1
-  • Increase/decrease quantity
-  • Prevent quantity below 1
-  • Manual quantity input
-  • Validate against stock
-
-✓ Add to Cart Options
-  • Add default quantity
-  • Add custom quantity
-  • Success message display
-  • Add same product multiple times
-
-✓ Related Products
-  • Display related products
-  • Navigate to related product
-  • Maintain context when returning
-
-✓ Navigation
-  • Back button to listing
-  • Maintain search/filter context
-  • Direct URL navigation to product
-
-✓ Error States & Edge Cases
-  • Handle out of stock gracefully
-  • Rapid add-to-cart clicks
-  • Network timeout handling
-
-✓ Accessibility
-  • Proper heading hierarchy (H1)
-  • Accessible quantity controls
-  • Descriptive button labels
-```
-
-#### **4. productListingComprehensive.spec.ts** - Product Discovery (Bonus)
-
-```
-✓ Product Listing Display
-  • Display product listing page
-  • Show correct number of products
-  • Display product info (name, price)
-  • Add to cart button for each product
-  • Navigate to product details
-
-✓ Shopping Cart Operations
-  • Add single product to cart
-  • Increment cart badge
-  • Add multiple products
-  • Persist cart after refresh
-  • Navigate to cart from header
-
-✓ Search & Filtering
-  • Search products by keyword
-  • Display empty state when no results
-  • Clear search and restore products
-  • Filter by category
-  • Display correct category
-
-✓ Product Details
-  • Display product details page
-  • Show correct product information
-  • Display product image
-  • Display product price
-  • Display product description
-  • Add to cart from details page
-
-✓ Error Handling
-  • Handle loading state gracefully
-  • Category filter edge cases
-  • Rapid add-to-cart clicks
-  • Back button navigation
-
-✓ Accessibility & Visual
-  • Proper heading hierarchy
-  • Accessible product links
-  • Descriptive image alt text
-```
+### HTTP Status Code Coverage
+- POST → 201 Created
+- POST invalid → 400 Bad Request
+- Full CRUD cycle: GET 200, GET/:id 200, PUT 200, DELETE 204, GET/:id after delete 404
+- All response bodies match their respective schemas
 
 ---
 
-### ✅ WebSocket Testing (Existing)
+## UI Test Coverage
 
-```
-websocketComprehensive.spec.ts
-✓ WebSocket Connection establishment
-✓ User creation event broadcasting
-✓ Real-time event listening
-✓ Error handling
-```
+### E2E Complete Purchase (`complete-purchase.e2e.spec.ts`)
+- [Positive] Add multiple products with custom quantities → verify cart badge → verify cart items count + price summary → fill checkout form → submit → verify order confirmation
+- [Negative] Empty cart → checkout page blocked
+- [Negative] Invalid checkout form data → validation errors displayed
 
----
+### Product Listing (`pageWiseTests/product-listing.spec.ts`)
+- Products load and are visible on navigate
+- Add product to cart increments cart badge
+- Navigate to product details from listing
+- Search by keyword filters results
+- Filter by category shows correct products
 
-## 🔧 Page Object Model (POM) Architecture
+### Product Details (`pageWiseTests/product-details.spec.ts`)
+- Product name, price, description, category, stock status displayed
+- Quantity selector defaults to 1
+- Increase quantity → add to cart → cart badge reflects quantity
+- Decrease quantity does not go below 1
+- Add to cart from details → item appears in cart
+- Back navigation returns to listing
+- Cart data persists after navigating away
 
-### PageManager (Fixture)
+### Cart (`pageWiseTests/cart.spec.ts`)
+- Empty cart shows empty-state component
+- Added product appears as a line item
+- Quantity update reflected in price summary
+- Remove single item removes line item
+- Remove all items → empty state
+- Price summary shows subtotal, tax, shipping, total correctly
 
-```typescript
-pageManager.productListingPage; // ProductListingPage
-pageManager.productDetailsPage; // ProductDetailsPage
-pageManager.cartPage; // CartPage
-pageManager.checkoutPage; // CheckoutPage
-pageManager.basePage; // BasePage (utilities)
-
-// Convenience methods
-pageManager.navigateToHome();
-pageManager.navigateToCart();
-pageManager.navigateToCheckout();
-pageManager.navigateToProduct(id);
-pageManager.completePurchaseFlow(formData);
-```
-
-### ProductListingPage Methods
-
-```typescript
-getProductCount();
-getFirstProductName();
-getFirstProductPrice();
-clickFirstProduct();
-clickProductByName(name);
-clickAddToCartForProduct(index);
-addAllProductsToCart(count);
-getCartCount();
-goToCart();
-searchProducts(query);
-clearSearch();
-filterByCategory(category);
-getSelectedCategory();
-isProductListingVisible();
-isLoadingVisible();
-isEmptyStateVisible();
-waitForProductsToLoad();
-waitForLoadingToComplete();
-```
-
-### CartPage Methods
-
-```typescript
-navigate();
-getItemCount();
-getItemCountFromHeader();
-getItemByProductId(id);
-updateItemQuantity(productId, quantity);
-removeItem(productId);
-removeAllItems();
-getSubtotalPrice();
-getTaxPrice();
-getShippingPrice();
-getTotalPrice();
-getTotalPriceAsNumber();
-proceedToCheckout();
-continueShopping();
-isCartPageVisible();
-isEmptyCartVisible();
-isCheckoutButtonVisible();
-waitForCartToLoad();
-```
-
-### CheckoutPage Methods (Enhanced)
-
-```typescript
-navigate();
-fillCheckoutForm(data);
-setFirstName / LastName / Email / Phone / Address / City / ZipCode();
-submitOrder();
-goBackToCart();
-getErrorMessage();
-(getFirstNameError(),
-  getEmailError(),
-  etc.isFirstNameErrorVisible(),
-  isEmailErrorVisible(),
-  etc.isCheckoutFormVisible());
-isOrderConfirmationVisible();
-getOrderId();
-getOrderSuccessTitle();
-backToHome();
-waitForCheckoutPageToLoad();
-waitForOrderConfirmation();
-completeCheckout(formData);
-```
-
-### ProductDetailsPage Methods (Enhanced)
-
-```typescript
-navigateToProduct(id);
-getProductTitle() / getProductName() / getName();
-getPrice();
-getDescription();
-getCategory();
-getRating();
-getStockStatus();
-isImageVisible();
-getImageSrc();
-getImageAltText();
-getImageCount();
-canZoomImage();
-zoomImage();
-getQuantity();
-isQuantitySelectorVisible();
-setQuantity(qty);
-increaseQuantity();
-decreaseQuantity();
-addToCart();
-addToCartWithQuantity(qty);
-getSuccessMessage();
-goBack();
-isProductDetailsVisible();
-isAddToCartButtonEnabled();
-waitForProductDetailsToLoad();
-hasRelatedProducts();
-clickFirstRelatedProduct();
-getProductId();
-```
+### Checkout (`pageWiseTests/checkout.spec.ts`)
+- Cannot proceed to checkout with empty cart
+- Checkout form fills and submits successfully
+- Order confirmation page shows order ID
+- Missing required fields (firstName, lastName, email) show field-level errors
+- Invalid email format shows error
+- Invalid phone format shows error
+- Invalid zip code shows error
+- Back-to-cart navigates back and preserves cart items
 
 ---
 
-## 📊 Schema Validation (AJV)
-
-### Schemas Used
-
-```typescript
-userSchema; // Single user object
-usersListSchema; // Array of users
-createUserPayloadSchema; // POST request body
-updateUserPayloadSchema; // PUT request body
-errorResponseSchema; // Error responses
-```
-
-### Validation Functions
-
-```typescript
-validateSchema(data, schema); // Returns boolean
-getSchemaErrors(data, schema); // Returns {isValid, errors, data}
-assertSchemaValid(data, schema, name); // Throws on invalid
-validateResponseContract(response, contract);
-```
+## WebSocket Coverage (`users.websocket.spec.ts`)
+- WebSocket connection established on page load
+- Connection remains open during API operations
+- `userCreated` event received after POST /users, payload valid
+- `userUpdated` event received after PUT /users/:id, payload valid
+- `userDeleted` event received after DELETE /users/:id
+- Event payload validated against `userSchema`
+- Clean WebSocket disconnect
 
 ---
 
-## 🧪 Test Data Fixtures
+## Schema Validation (AJV)
 
-### User Test Data (`fixtures/userTestData.ts`)
-
-```typescript
-validUser; // Complete valid user
-validUserMinimal; // Minimal required fields
-invalidUser; // Multiple validation errors
-userMissingFirstName; // Missing firstName
-userMissingLastName; // Missing lastName
-userMissingEmail; // Missing email
-userInvalidEmail; // Invalid email format
-userInvalidPhone; // Invalid phone format
-userExceedsMaxLength; // Name exceeds max length
-testUsers; // Array of 5 test users
-updateUserData; // Update payload example
-checkoutFormData; // Valid checkout form
-invalidCheckoutData; // Invalid checkout form
-```
+| Schema | Used For |
+|--------|---------|
+| `userSchema` | Single user response body |
+| `usersListSchema` | GET /users response array |
+| `createUserPayloadSchema` | POST /users request contract |
+| `updateUserPayloadSchema` | PUT /users/:id request contract |
+| `errorResponseSchema` | Error response format |
 
 ---
 
-## 🚀 Running Tests
-
-### Run All Tests
-
-```bash
-npm test
-```
-
-### Run Specific Test Suite
-
-```bash
-npm run test:api          # All API tests
-npm run test:ui           # All UI tests
-npm run test:websocket    # WebSocket tests
-
-# Run specific file
-npx playwright test tests/api/apiContractTesting.spec.ts
-npx playwright test tests/ui/checkoutComprehensive.spec.ts
-```
-
-### Run with Options
-
-```bash
-npm run test:headed       # Show browser
-npm run test:debug        # Debug mode
-npm run test:ui-mode      # UI test runner
-npm run test:report       # View HTML report
-```
-
----
-
-## ✨ Key Features
-
-### ✅ Comprehensive Coverage
-
-- **Positive scenarios**: All happy paths tested
-- **Negative scenarios**: Validation errors, edge cases
-- **Contract testing**: Request/response schema validation
-- **Data-driven**: Multiple data sets per scenario
-
-### ✅ POM Best Practices
-
-- Lazy loading of page objects
-- Centralized selectors
-- Reusable helper methods
-- Clean separation of concerns
-
-### ✅ Fixtures & Test Data
-
-- Organized test data by category
-- Positive and negative data sets
-- Easy to extend with new scenarios
-
-### ✅ Error Handling
-
-- Graceful error messages
-- Schema validation with AJV
-- Retry logic for flaky tests
-- Screenshot on failure
-
-### ✅ Accessibility
-
-- Alt text validation
-- Heading hierarchy checks
-- Button label validation
-- Semantic HTML checks
-
-### ✅ Clean Code
-
-- Consistent naming conventions
-- Well-documented tests
-- Organized describe blocks
-- Clear assertion messages
-
----
-
-## 📈 Test Metrics
-
-| Category        | Count    | Status       |
-| --------------- | -------- | ------------ |
-| API Tests       | 50+      | ✅ Complete  |
-| Contract Tests  | 40+      | ✅ Complete  |
-| UI Tests        | 150+     | ✅ Complete  |
-| WebSocket Tests | 10+      | ✅ Complete  |
-| **Total Tests** | **250+** | **✅ Ready** |
-
----
-
-## 🎓 What This Demonstrates
-
-### Problem Solving
-
-- ✅ Identified all test gaps
-- ✅ Designed comprehensive coverage strategy
-- ✅ Implemented best practices (POM, fixtures, contracts)
-
-### Clean Code
-
-- ✅ Well-organized file structure
-- ✅ DRY principles throughout
-- ✅ Reusable page objects and fixtures
-- ✅ Consistent naming and documentation
-
-### Automation Excellence
-
-- ✅ API contract testing with AJV
-- ✅ Complete E2E workflows
-- ✅ Negative scenario testing
-- ✅ Data-driven test execution
-
-### Technical Knowledge
-
-- ✅ Playwright best practices
-- ✅ JSON Schema validation (AJV)
-- ✅ TypeScript for type safety
-- ✅ Fixture and POM patterns
-
----
-
-## 📝 Test Naming Convention
-
-Tests follow a consistent naming pattern:
-
-```
-test("[Positive] Should {action} with {scenario}", async () => {})
-test("[Negative] Should {reject/not} {action} when {condition}", async () => {})
-test("[Data-driven] Should {action} multiple {items}", async () => {})
-test("Should validate {contract} for {endpoint}", async () => {})
-```
-
----
-
-## 🔄 Continuous Integration
-
-Tests are configured for CI/CD:
-
-- ✅ Multiple browser testing (Chromium, Firefox, Safari)
-- ✅ HTML report generation
-- ✅ JUnit XML output for CI systems
-- ✅ Screenshot/video on failure
-- ✅ Automatic retry on failure
-
----
-
-## 🎯 Next Steps for Enhancement
-
-Optional additions:
-
-1. **Performance testing** - Load times, API response times
-2. **Visual regression** - Screenshot comparison
-3. **Accessibility testing** - Full axe-core integration
-4. **Security testing** - XSS, SQL injection validation
-5. **Mobile testing** - Responsive design validation
-
----
-
-**Created**: May 2026  
-**Framework**: Playwright + TypeScript  
-**Coverage**: API, UI, WebSocket, Contract Testing  
-**Status**: ✅ Production Ready
+## Coverage Gaps & Next Steps
+- Performance: no load-time or API latency assertions
+- Visual regression: no screenshot-diff tests
+- Full axe-core accessibility scan not yet wired up
+- Firefox and Safari projects exist in config but are commented out
+- Security tests (XSS, injection) not yet covered
